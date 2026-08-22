@@ -29,6 +29,7 @@ export default function PaymentsPage() {
       }
       return fetchApi<PaymentListResponse>(endpoint, { method: "GET" }, token);
     },
+    refetchInterval: 4000,
   });
 
   const formatCurrency = (amountMinor: number = 0) => {
@@ -95,7 +96,7 @@ export default function PaymentsPage() {
                 data.items.map((p: any) => (
                   <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="p-4 font-mono text-indigo-300">{p.id.substring(0, 8)}...</td>
-                    <td className="p-4 font-mono text-slate-400">{p.external_payment_id}</td>
+                    <td className="p-4 font-mono text-slate-400">{p.provider_payment_id || p.external_payment_id || "N/A"}</td>
                     <td className="p-4 font-semibold text-white">{formatCurrency(p.amount_minor)}</td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${

@@ -15,8 +15,13 @@ export async function fetchApi<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
+  const method = (options.method || "GET").toUpperCase();
   if (idempotencyKey) {
     headers["Idempotency-Key"] = idempotencyKey;
+  } else if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    headers["Idempotency-Key"] = typeof crypto !== "undefined" && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : `idemp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {

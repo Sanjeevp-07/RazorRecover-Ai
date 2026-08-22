@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
@@ -25,12 +26,21 @@ def create_app() -> FastAPI:
             "http://127.0.0.1:3000",
             "http://localhost:8000",
             "http://127.0.0.1:8000",
+            "http://localhost:3001",
+            "http://127.0.0.1:3001",
         ],
         allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:[0-9]+)?",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            status_code=500,
+            content={"error": {"code": "INTERNAL_SERVER_ERROR", "message": str(exc)}},
+        )
 
     # Mount API v1 Routers
     app.include_router(auth_router, prefix=settings.API_V1_STR)

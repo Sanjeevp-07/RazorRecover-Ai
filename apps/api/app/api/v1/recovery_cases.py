@@ -54,7 +54,7 @@ async def get_recovery_case_detail(
 @router.post("/{id}/analyze", status_code=status.HTTP_202_ACCEPTED)
 async def analyze_recovery_case(
     id: uuid.UUID,
-    idempotency_key: str = Header(..., alias="Idempotency-Key"),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
     current_user: MerchantUser = Depends(get_current_merchant_user),
     session: AsyncSession = Depends(get_db_session)
 ):
@@ -62,19 +62,20 @@ async def analyze_recovery_case(
     POST /api/v1/recovery-cases/{id}/analyze (§9.2).
     Enqueue analysis task (202 Accepted).
     """
+    idem_key = idempotency_key or str(uuid.uuid4())
     service = RecoveryCaseService(session, current_user.merchant_id)
     case_detail = await service.get_case_detail(id)
     return {
         "status": "ACCEPTED",
         "message": "Analysis task enqueued",
         "case_id": str(id),
-        "idempotency_key": idempotency_key
+        "idempotency_key": idem_key
     }
 
 @router.post("/{id}/approve", response_model=RecoveryCaseDetailResponse)
 async def approve_recovery_case(
     id: uuid.UUID,
-    idempotency_key: str = Header(..., alias="Idempotency-Key"),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
     current_user: MerchantUser = Depends(get_current_merchant_user),
     session: AsyncSession = Depends(get_db_session)
 ):
@@ -88,7 +89,7 @@ async def approve_recovery_case(
 @router.post("/{id}/reject", response_model=RecoveryCaseDetailResponse)
 async def reject_recovery_case(
     id: uuid.UUID,
-    idempotency_key: str = Header(..., alias="Idempotency-Key"),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
     current_user: MerchantUser = Depends(get_current_merchant_user),
     session: AsyncSession = Depends(get_db_session)
 ):

@@ -13,6 +13,7 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
   const { data: payment, isLoading } = useQuery<any>({
     queryKey: ["payment-detail", paymentId],
     queryFn: () => fetchApi<any>(`/payments/${paymentId}`, { method: "GET" }, token),
+    refetchInterval: 4000,
   });
 
   if (isLoading) {

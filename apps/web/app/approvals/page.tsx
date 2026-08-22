@@ -15,17 +15,26 @@ export default function ApprovalsPage() {
   const { data: approvals, isLoading } = useQuery<any[]>({
     queryKey: ["approvals-list"],
     queryFn: () => fetchApi<any>("/recovery-cases?status=PENDING_APPROVAL", { method: "GET" }, token).then(res => res.items || []),
+    refetchInterval: 4000,
   });
+
+  const invalidateAll = () => {
+    setActionError(null);
+    queryClient.invalidateQueries({ queryKey: ["approvals-list"] });
+    queryClient.invalidateQueries({ queryKey: ["recovery-cases-list"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
+    queryClient.invalidateQueries({ queryKey: ["payments-list"] });
+  };
 
   const approveMutation = useMutation({
     mutationFn: (caseId: string) => fetchApi(`/recovery-cases/${caseId}/approve`, { method: "POST" }, token),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["approvals-list"] }),
+    onSuccess: () => invalidateAll(),
     onError: (err: any) => setActionError(err.message),
   });
 
   const rejectMutation = useMutation({
     mutationFn: (caseId: string) => fetchApi(`/recovery-cases/${caseId}/reject`, { method: "POST" }, token),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["approvals-list"] }),
+    onSuccess: () => invalidateAll(),
     onError: (err: any) => setActionError(err.message),
   });
 

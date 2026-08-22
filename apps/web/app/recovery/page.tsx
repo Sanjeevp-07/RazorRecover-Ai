@@ -29,6 +29,7 @@ export default function RecoveryQueuePage() {
       }
       return fetchApi<CaseListResponse>(endpoint, { method: "GET" }, token);
     },
+    refetchInterval: 4000,
   });
 
   return (

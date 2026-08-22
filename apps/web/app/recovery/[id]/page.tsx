@@ -27,20 +27,31 @@ export default function CaseDecisionChainPage({ params }: { params: { id: string
   const { data: caseData, isLoading } = useQuery<any>({
     queryKey: ["recovery-case-detail", caseId],
     queryFn: () => fetchApi<any>(`/recovery-cases/${caseId}`, { method: "GET" }, token),
+    refetchInterval: 4000,
   });
 
   // Fetch audit timeline (§19)
   const { data: timeline } = useQuery<any[]>({
     queryKey: ["recovery-case-timeline", caseId],
     queryFn: () => fetchApi<any[]>(`/recovery-cases/${caseId}/timeline`, { method: "GET" }, token),
+    refetchInterval: 4000,
   });
+
+  const invalidateAllData = () => {
+    setActionError(null);
+    queryClient.invalidateQueries({ queryKey: ["recovery-case-detail", caseId] });
+    queryClient.invalidateQueries({ queryKey: ["recovery-case-timeline", caseId] });
+    queryClient.invalidateQueries({ queryKey: ["recovery-cases-list"] });
+    queryClient.invalidateQueries({ queryKey: ["approvals-list"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
+    queryClient.invalidateQueries({ queryKey: ["payments-list"] });
+  };
 
   // Approve Mutation (§19)
   const approveMutation = useMutation({
     mutationFn: () => fetchApi(`/recovery-cases/${caseId}/approve`, { method: "POST" }, token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recovery-case-detail", caseId] });
-      queryClient.invalidateQueries({ queryKey: ["recovery-case-timeline", caseId] });
+      invalidateAllData();
     },
     onError: (err: any) => setActionError(err.message),
   });
@@ -49,8 +60,7 @@ export default function CaseDecisionChainPage({ params }: { params: { id: string
   const rejectMutation = useMutation({
     mutationFn: () => fetchApi(`/recovery-cases/${caseId}/reject`, { method: "POST" }, token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recovery-case-detail", caseId] });
-      queryClient.invalidateQueries({ queryKey: ["recovery-case-timeline", caseId] });
+      invalidateAllData();
     },
     onError: (err: any) => setActionError(err.message),
   });
@@ -130,16 +140,16 @@ export default function CaseDecisionChainPage({ params }: { params: { id: string
           <div className="space-y-3 text-xs">
             <div className="flex justify-between py-2 border-b border-slate-800">
               <span className="text-slate-400">Retry Count</span>
-              <span className="font-bold text-white">{caseData.risk_signal?.retry_count ?? 1}</span>
+              <span className="font-bold text-white">{caseData.risk_signals?.retry_count ?? caseData.risk_signal?.retry_count ?? 1}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-slate-800">
               <span className="text-slate-400">Customer Score</span>
-              <span className="font-bold text-emerald-400">{caseData.risk_signal?.customer_history_score ?? 0.85}</span>
+              <span className="font-bold text-emerald-400">{caseData.risk_signals?.customer_history_score ?? caseData.risk_signal?.customer_history_score ?? 0.85}</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="text-slate-400">Velocity Flag</span>
               <span className="font-semibold text-slate-300">
-                {caseData.risk_signal?.velocity_flag ? "TRUE" : "FALSE"}
+                {(caseData.risk_signals?.velocity_flag ?? caseData.risk_signal?.velocity_flag) ? "TRUE" : "FALSE"}
               </span>
             </div>
           </div>
