@@ -33,7 +33,7 @@ class AuthService:
             pass
 
         # Fallback for demo merchant owner
-        if user_id == DEMO_USER_ID:
+        if str(user_id) == str(DEMO_USER_ID):
             return MerchantUser(
                 id=DEMO_USER_ID,
                 merchant_id=DEMO_MERCHANT_ID,
@@ -98,11 +98,20 @@ class AuthService:
             merchant_id=str(user.merchant_id)
         )
 
+        user_info = UserResponse(
+            id=user.id,
+            merchant_id=user.merchant_id,
+            email=user.email,
+            role=user.role.value if hasattr(user.role, "value") else str(user.role),
+            is_active=user.is_active
+        )
+
         token_response = TokenResponse(
             access_token=access_token,
             token_type="Bearer",
             expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            refresh_token=refresh_token
+            refresh_token=refresh_token,
+            user=user_info
         )
         return token_response, user
 

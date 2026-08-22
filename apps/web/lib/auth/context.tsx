@@ -28,11 +28,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("access_token");
-    if (savedToken) {
-      setToken(savedToken);
-      fetchUserInfo(savedToken);
-    } else {
+    try {
+      const savedToken = localStorage.getItem("access_token");
+      const savedUser = localStorage.getItem("user_info");
+
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch (e) {
+          // ignore parse error
+        }
+      }
+
+      if (savedToken) {
+        setToken(savedToken);
+        fetchUserInfo(savedToken);
+      } else {
+        setIsLoading(false);
+      }
+    } catch (e) {
       setIsLoading(false);
     }
   }, []);
@@ -40,9 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserInfo = async (authToken: string) => {
     try {
       const userData = await fetchApi<User>("/auth/me", { method: "GET" }, authToken);
-      setUser(userData);
-    } catch (err) {
-      logout();
+      if (userData && userData.email) {
+        setUser(userData);
+        localStorage.setItem("user_info", JSON.stringify(userData));
+      }
+    } catch (err: any) {
+      // Only logout if error is strictly a 401 Unauthorized / credentials error
+      const msg = err?.message || "";
+      if (msg.includes("401") || msg.includes("credentials") || msg.includes("inactive")) {
+        logout();
+      }
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const accessToken = res.access_token;
     localStorage.setItem("access_token", accessToken);
     setToken(accessToken);
+
     if (res.user) {
+      localStorage.setItem("user_info", JSON.stringify(res.user));
       setUser(res.user);
       setIsLoading(false);
     } else {
@@ -74,7 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const accessToken = res.access_token;
     localStorage.setItem("access_token", accessToken);
     setToken(accessToken);
+
     if (res.user) {
+      localStorage.setItem("user_info", JSON.stringify(res.user));
       setUser(res.user);
       setIsLoading(false);
     } else {
@@ -84,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("user_info");
     setToken(null);
     setUser(null);
     setIsLoading(false);

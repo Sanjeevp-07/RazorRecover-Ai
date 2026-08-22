@@ -12,13 +12,6 @@ class RefreshRequest(BaseSchema):
     """Payload for POST /api/v1/auth/refresh."""
     refresh_token: str
 
-class TokenResponse(BaseSchema):
-    """Token issuance response."""
-    access_token: str
-    token_type: str = "Bearer"
-    expires_in: int
-    refresh_token: Optional[str] = None
-
 class UserResponse(BaseSchema):
     """Authenticated user info."""
     id: uuid.UUID
@@ -26,3 +19,11 @@ class UserResponse(BaseSchema):
     email: str
     role: str
     is_active: bool
+
+class TokenResponse(BaseSchema):
+    """Token issuance response."""
+    access_token: str
+    token_type: str = "Bearer"
+    expires_in: int
+    refresh_token: Optional[str] = None
+    user: Optional[UserResponse] = None

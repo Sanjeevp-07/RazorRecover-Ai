@@ -46,7 +46,7 @@ async def get_current_merchant_user(
 
     auth_service = AuthService(session)
     user = await auth_service.get_user_by_id(user_id)
-    if not user or not user.is_active or user.merchant_id != merchant_id:
+    if not user or not user.is_active or str(user.merchant_id) != str(merchant_id):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User or merchant is inactive"
