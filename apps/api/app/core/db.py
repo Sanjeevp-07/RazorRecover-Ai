@@ -10,7 +10,8 @@ async_engine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,
     future=True,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    connect_args={"timeout": 0.5, "command_timeout": 0.5}
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -25,7 +26,8 @@ AsyncSessionLocal = async_sessionmaker(
 sync_engine = create_engine(
     settings.SYNC_DATABASE_URL,
     echo=False,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    connect_args={"connect_timeout": 1}
 )
 
 SyncSessionLocal = sessionmaker(
