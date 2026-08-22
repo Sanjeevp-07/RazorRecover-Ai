@@ -32,7 +32,7 @@ def test_jwt_access_and_refresh_token_lifecycle():
 async def test_auth_me_requires_token():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/api/v1/auth/me")
-        assert response.status_code == 403  # Forbidden without Authorization header
+        assert response.status_code == 401  # Unauthorized without Bearer token
 
 @pytest.mark.asyncio
 async def test_auth_login_extra_fields_forbidden():
