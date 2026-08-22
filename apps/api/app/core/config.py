@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     AI_MODEL_COST: str = "gpt-5.6-luna"
     AI_MODEL_ESCALATED: str = "gpt-5.6-sol"
     OPENAI_API_KEY: Optional[str] = None
+    OPENAI_BASE_URL: Optional[str] = None  # Custom base URL for free LLM providers (Groq, OpenRouter, Ollama)
     
     # Razorpay Test Mode Credentials (§10)
     RAZORPAY_KEY_ID: str = "rzp_test_key_placeholder"

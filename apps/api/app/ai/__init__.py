@@ -1,6 +1,10 @@
-"""
-AI Reasoner Layer.
-Responsibility: Produces recommendation only (§11–12).
-Cannot call tools or integrations directly.
-Forbidden imports: app.services, app.api, app.tools, app.integrations
-"""
+from app.ai.base import RecoveryReasoner
+from app.ai.schemas import RecoveryRecommendation, RecommendedAction
+from app.ai.openai_provider import OpenAIReasoner
+
+__all__ = [
+    "RecoveryReasoner",
+    "RecoveryRecommendation",
+    "RecommendedAction",
+    "OpenAIReasoner"
+]

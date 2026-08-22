@@ -1,6 +1,12 @@
 """
-Policy / Guardrail Engine Layer.
-Responsibility: Deterministic authorization (§13). Pure function: (context) -> decision.
+Policy & Guardrail Engine Package.
+Deterministic authorization pure functions (context -> decision) (§13).
 No I/O.
-Forbidden imports: app.services, app.api, app.repositories, app.integrations, app.tools
 """
+from app.policy.engine import evaluate_policy, PolicyEvaluationContext, PolicyDecisionResult
+
+__all__ = [
+    "evaluate_policy",
+    "PolicyEvaluationContext",
+    "PolicyDecisionResult"
+]
