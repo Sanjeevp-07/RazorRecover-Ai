@@ -17,7 +17,18 @@ Rules:
 1. Never claim a payment is recovered.
 2. Fail closed: If confidence is low (< 0.7) or risk signals are high, set requires_human: true.
 3. Keep reason under 400 characters.
-4. Strictly output valid JSON matching schema_version 1.0."""
+4. You must strictly output valid JSON matching this exact JSON schema:
+{
+  "schema_version": "1.0",
+  "case_id": "<UUID string>",
+  "recovery_probability": 0.85,
+  "recommended_action": "CREATE_PAYMENT_LINK",
+  "confidence": 0.90,
+  "requires_human": false,
+  "reason": "Clear explanation under 400 chars",
+  "risk_signals": ["low_retry_count"]
+}
+Valid values for recommended_action are: "CREATE_PAYMENT_LINK", "SEND_NOTIFICATION", "RETRY_PAYMENT", "ESCALATE_CASE", "NO_ACTION"."""
 
 class OpenAIReasoner(RecoveryReasoner):
     """
@@ -31,8 +42,8 @@ class OpenAIReasoner(RecoveryReasoner):
         base_url: Optional[str] = None,
         model_id: Optional[str] = None
     ):
-        self.api_key = api_key or settings.OPENAI_API_KEY or "mock-key-for-dev-testing"
-        self.base_url = base_url or settings.OPENAI_BASE_URL
+        self.api_key = api_key or settings.NVIDIA_API_KEY or settings.OPENAI_API_KEY or "mock-key-for-dev-testing"
+        self.base_url = base_url or settings.OPENAI_BASE_URL or "https://integrate.api.nvidia.com/v1"
         self.model_id = model_id or settings.AI_MODEL_PRIMARY
 
         client_kwargs = {"api_key": self.api_key}
@@ -47,7 +58,7 @@ class OpenAIReasoner(RecoveryReasoner):
         context: Dict[str, Any]
     ) -> Tuple[Optional[RecoveryRecommendation], bool, str, int]:
         """
-        Analyze recovery case context using OpenAI / LLM provider.
+        Analyze recovery case context using NVIDIA NIM / OpenAI provider.
         Enforces 15s per-call timeout and 2 retries (§11.3).
         Fails closed on error or validation failure (§12.2).
         """
@@ -81,7 +92,16 @@ class OpenAIReasoner(RecoveryReasoner):
 
                 # Validate output schema server-side (§12.2)
                 try:
-                    parsed_json = json.loads(raw_output_text)
+                    cleaned_output = raw_output_text.strip()
+                    if cleaned_output.startswith("```json"):
+                        cleaned_output = cleaned_output[7:]
+                    elif cleaned_output.startswith("```"):
+                        cleaned_output = cleaned_output[3:]
+                    if cleaned_output.endswith("```"):
+                        cleaned_output = cleaned_output[:-3]
+                    cleaned_output = cleaned_output.strip()
+
+                    parsed_json = json.loads(cleaned_output)
                     if "case_id" not in parsed_json:
                         parsed_json["case_id"] = str(case_id)
                     

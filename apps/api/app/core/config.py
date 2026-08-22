@@ -30,12 +30,13 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
     
-    # AI Model Strategy Tiers (Pinned Model IDs - §11)
-    AI_MODEL_PRIMARY: str = "gpt-5.6-terra"
-    AI_MODEL_COST: str = "gpt-5.6-luna"
-    AI_MODEL_ESCALATED: str = "gpt-5.6-sol"
+    # AI Model Strategy Tiers (NVIDIA NIM Free LLM Models)
+    AI_MODEL_PRIMARY: str = "meta/llama-3.1-8b-instruct"
+    AI_MODEL_COST: str = "meta/llama-3.1-8b-instruct"
+    AI_MODEL_ESCALATED: str = "meta/llama-3.1-70b-instruct"
+    NVIDIA_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
-    OPENAI_BASE_URL: Optional[str] = None  # Custom base URL for free LLM providers (Groq, OpenRouter, Ollama)
+    OPENAI_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
     
     # Razorpay Test Mode Credentials (§10)
     RAZORPAY_KEY_ID: str = "rzp_test_key_placeholder"
