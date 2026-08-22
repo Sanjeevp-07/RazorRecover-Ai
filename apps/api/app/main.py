@@ -8,6 +8,7 @@ from app.api.v1.webhooks import router as webhooks_router
 from app.api.v1.payments import router as payments_router
 from app.api.v1.recovery_cases import router as cases_router
 from app.api.v1.dashboard import router as dashboard_router
+from app.api.v1.analytics import router as analytics_router
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -48,6 +49,7 @@ def create_app() -> FastAPI:
     app.include_router(payments_router, prefix=settings.API_V1_STR)
     app.include_router(cases_router, prefix=settings.API_V1_STR)
     app.include_router(dashboard_router, prefix=settings.API_V1_STR)
+    app.include_router(analytics_router, prefix=settings.API_V1_STR)
 
     @app.middleware("http")
     async def correlation_id_middleware(request: Request, call_next):
