@@ -1,4 +1,9 @@
 import type { Metadata } from "next";
+import "./globals.css";
+import { QueryProvider } from "@/lib/query/provider";
+import { AuthProvider } from "@/lib/auth/context";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Header } from "@/components/layout/Header";
 
 export const metadata: Metadata = {
   title: "RazorRecover AI — AI Revenue Recovery Agent",
@@ -11,9 +16,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        {children}
+    <html lang="en" className="dark">
+      <body className="bg-[#0b0f19] text-slate-100 min-h-screen">
+        <QueryProvider>
+          <AuthProvider>
+            <div className="flex">
+              <Sidebar />
+              <div className="flex-1 ml-64 flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1 p-8 overflow-y-auto">
+                  {children}
+                </main>
+              </div>
+            </div>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );
