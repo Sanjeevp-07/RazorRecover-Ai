@@ -21,141 +21,139 @@ from app.schemas.case import (
 )
 from app.schemas.dashboard import DashboardSummaryResponse
 
+from pathlib import Path
+import json
+
 from app.services.payment_service import DEMO_PAYMENTS_DATA
 
 DEMO_MERCHANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
-DEMO_CASES_DATA = [
-    {
-        "id": uuid.UUID("11111111-1111-1111-1111-000000000001"),
-        "merchant_id": DEMO_MERCHANT_ID,
-        "payment_id": uuid.UUID("22222222-2222-2222-2222-000000000001"),
-        "status": RecoveryCaseStatus.PENDING_APPROVAL,
-        "correlation_id": uuid.UUID("33333333-3333-3333-3333-000000000001"),
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
-        "amount_minor": 1850000,
-        "currency": "INR",
-        "payment_status": "failed",
-        "failure_reason": "Payment expired during 3DS OTP verification",
-        "retry_count": 1,
-        "customer_score": 0.91,
-        "velocity_flag": False,
-        "action": "SMART_RETRY_FALLBACK_METHOD",
-        "probability": 0.87,
-        "confidence": 0.94,
-        "reason": "Customer has high lifetime value and verified alternate UPI handles available",
-        "rule": "HIGH_VALUE_THRESHOLD_SLA_POLICY",
-        "approval_status": "PENDING"
-    },
-    {
-        "id": uuid.UUID("11111111-1111-1111-1111-000000000002"),
-        "merchant_id": DEMO_MERCHANT_ID,
-        "payment_id": uuid.UUID("22222222-2222-2222-2222-000000000002"),
-        "status": RecoveryCaseStatus.RECOVERED,
-        "correlation_id": uuid.UUID("33333333-3333-3333-3333-000000000002"),
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
-        "amount_minor": 2499900,
-        "currency": "INR",
-        "payment_status": "recovered",
-        "failure_reason": "Issuer bank network timeout",
-        "retry_count": 2,
-        "customer_score": 0.88,
-        "velocity_flag": False,
-        "action": "AI_SCHEDULED_RETRY",
-        "probability": 0.95,
-        "confidence": 0.96,
-        "reason": "Retry executed successfully after transient network congestion cleared",
-        "rule": "AUTO_RETRY_TRANSIENT_FAILURE",
-        "approval_status": "APPROVED"
-    },
-    {
-        "id": uuid.UUID("11111111-1111-1111-1111-000000000003"),
-        "merchant_id": DEMO_MERCHANT_ID,
-        "payment_id": uuid.UUID("22222222-2222-2222-2222-000000000003"),
-        "status": RecoveryCaseStatus.OPEN,
-        "correlation_id": uuid.UUID("33333333-3333-3333-3333-000000000003"),
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
-        "amount_minor": 940000,
-        "currency": "INR",
-        "payment_status": "failed",
-        "failure_reason": "Insufficient funds in bank account",
-        "retry_count": 0,
-        "customer_score": 0.76,
-        "velocity_flag": False,
-        "action": "PAYMENT_LINK_WHATSAPP_NUDGE",
-        "probability": 0.72,
-        "confidence": 0.85,
-        "reason": "Notify customer via WhatsApp with personalized payment link",
-        "rule": "CUSTOMER_NOTIFICATION_ROUTING",
-        "approval_status": "PENDING"
-    }
-]
+_GLOBAL_CASES_CACHE = None
+_GLOBAL_TIMELINES_CACHE = None
+_FIXTURE_PATH = None
 
-DEMO_TIMELINES = {
-    uuid.UUID("11111111-1111-1111-1111-000000000001"): [
-        {
-            "id": uuid.uuid4(),
-            "event_type": "PAYMENT_FAILED_INGESTED",
-            "payload": {"failure_reason": "Payment expired during 3DS OTP verification", "amount_minor": 1850000},
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "id": uuid.uuid4(),
-            "event_type": "AI_REASONING_COMPLETED",
-            "payload": {"recommended_action": "SMART_RETRY_FALLBACK_METHOD", "recovery_probability": 0.87, "confidence": 0.94},
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "id": uuid.uuid4(),
-            "event_type": "POLICY_GUARDRAIL_EVALUATED",
-            "payload": {"matched_rule": "HIGH_VALUE_THRESHOLD_SLA_POLICY", "decision": "ALLOW_WITH_APPROVAL"},
-            "created_at": datetime.now(timezone.utc)
-        }
-    ],
-    uuid.UUID("11111111-1111-1111-1111-000000000002"): [
-        {
-            "id": uuid.uuid4(),
-            "event_type": "PAYMENT_FAILED_INGESTED",
-            "payload": {"failure_reason": "Issuer bank network timeout", "amount_minor": 2499900},
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "id": uuid.uuid4(),
-            "event_type": "AI_REASONING_COMPLETED",
-            "payload": {"recommended_action": "AI_SCHEDULED_RETRY", "recovery_probability": 0.95, "confidence": 0.96},
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "id": uuid.uuid4(),
-            "event_type": "POLICY_GUARDRAIL_EVALUATED",
-            "payload": {"matched_rule": "AUTO_RETRY_TRANSIENT_FAILURE", "decision": "AUTO_APPROVE"},
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "id": uuid.uuid4(),
-            "event_type": "ACTION_EXECUTED_SUCCESS",
-            "payload": {"status": "RECOVERED", "recovered_amount": 2499900},
-            "created_at": datetime.now(timezone.utc)
-        }
-    ],
-    uuid.UUID("11111111-1111-1111-1111-000000000003"): [
-        {
-            "id": uuid.uuid4(),
-            "event_type": "PAYMENT_FAILED_INGESTED",
-            "payload": {"failure_reason": "Insufficient funds in bank account", "amount_minor": 940000},
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "id": uuid.uuid4(),
-            "event_type": "AI_REASONING_COMPLETED",
-            "payload": {"recommended_action": "PAYMENT_LINK_WHATSAPP_NUDGE", "recovery_probability": 0.72, "confidence": 0.85},
-            "created_at": datetime.now(timezone.utc)
-        }
-    ]
-}
+def _get_fixture_path() -> Optional[Path]:
+    global _FIXTURE_PATH
+    if _FIXTURE_PATH and _FIXTURE_PATH.exists():
+        return _FIXTURE_PATH
+    for p in Path(__file__).resolve().parents:
+        cand = p / "data" / "seed" / "cases_100.json"
+        if cand.exists():
+            _FIXTURE_PATH = cand
+            return cand
+    return None
+
+def _load_100_cases():
+    fixture_path = _get_fixture_path()
+    if fixture_path and fixture_path.exists():
+        try:
+            with open(fixture_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                cases = []
+                for c in data.get("cases", []):
+                    cases.append({
+                        "id": uuid.UUID(c["id"]),
+                        "merchant_id": uuid.UUID(c["merchant_id"]),
+                        "payment_id": uuid.UUID(c["payment_id"]),
+                        "status": RecoveryCaseStatus(c["status"]),
+                        "correlation_id": uuid.UUID(c["correlation_id"]),
+                        "created_at": datetime.fromisoformat(c["created_at"]),
+                        "updated_at": datetime.fromisoformat(c["updated_at"]),
+                        "amount_minor": c["amount_minor"],
+                        "currency": c["currency"],
+                        "payment_status": c["payment_status"],
+                        "failure_reason": c["failure_reason"],
+                        "retry_count": c["retry_count"],
+                        "customer_score": c["customer_score"],
+                        "velocity_flag": c["velocity_flag"],
+                        "action": c["action"],
+                        "probability": c["probability"],
+                        "confidence": c["confidence"],
+                        "reason": c["reason"],
+                        "rule": c["rule"],
+                        "approval_status": c["approval_status"],
+                        "scenario_type": c.get("scenario_type", "GENERAL")
+                    })
+
+                timelines = {}
+                for k, v in data.get("timelines", {}).items():
+                    timelines[uuid.UUID(k)] = [
+                        {
+                            "id": uuid.UUID(e["id"]),
+                            "event_type": e["event_type"],
+                            "payload": e["payload"],
+                            "created_at": datetime.fromisoformat(e["created_at"])
+                        }
+                        for e in v
+                    ]
+                return cases, timelines
+        except Exception:
+            pass
+    return None, None
+
+def get_all_demo_cases():
+    global _GLOBAL_CASES_CACHE, _GLOBAL_TIMELINES_CACHE
+    if _GLOBAL_CASES_CACHE is None:
+        c, t = _load_100_cases()
+        _GLOBAL_CASES_CACHE = c if c is not None else []
+        _GLOBAL_TIMELINES_CACHE = t if t is not None else {}
+    return _GLOBAL_CASES_CACHE
+
+def get_all_demo_timelines():
+    global _GLOBAL_CASES_CACHE, _GLOBAL_TIMELINES_CACHE
+    if _GLOBAL_TIMELINES_CACHE is None:
+        c, t = _load_100_cases()
+        _GLOBAL_CASES_CACHE = c if c is not None else []
+        _GLOBAL_TIMELINES_CACHE = t if t is not None else {}
+    return _GLOBAL_TIMELINES_CACHE
+
+def _persist_demo_state():
+    fixture_path = _get_fixture_path()
+    if not fixture_path:
+        return
+    try:
+        cases = get_all_demo_cases()
+        timelines = get_all_demo_timelines()
+        json_cases = []
+        for c in cases:
+            json_cases.append({
+                "id": str(c["id"]),
+                "merchant_id": str(c["merchant_id"]),
+                "payment_id": str(c["payment_id"]),
+                "status": c["status"].value if hasattr(c["status"], "value") else str(c["status"]),
+                "correlation_id": str(c["correlation_id"]),
+                "created_at": c["created_at"].isoformat() if hasattr(c["created_at"], "isoformat") else str(c["created_at"]),
+                "updated_at": c["updated_at"].isoformat() if hasattr(c["updated_at"], "isoformat") else str(c["updated_at"]),
+                "amount_minor": c["amount_minor"],
+                "currency": c["currency"],
+                "payment_status": c["payment_status"],
+                "failure_reason": c["failure_reason"],
+                "retry_count": c["retry_count"],
+                "customer_score": c["customer_score"],
+                "velocity_flag": c["velocity_flag"],
+                "action": c["action"],
+                "probability": c["probability"],
+                "confidence": c["confidence"],
+                "reason": c["reason"],
+                "rule": c["rule"],
+                "approval_status": c["approval_status"],
+                "scenario_type": c.get("scenario_type", "GENERAL")
+            })
+        json_timelines = {}
+        for k, v in timelines.items():
+            json_timelines[str(k)] = [
+                {
+                    "id": str(e["id"]),
+                    "event_type": e["event_type"],
+                    "payload": e["payload"],
+                    "created_at": e["created_at"].isoformat() if hasattr(e["created_at"], "isoformat") else str(e["created_at"])
+                }
+                for e in v
+            ]
+        with open(fixture_path, "w", encoding="utf-8") as f:
+            json.dump({"cases": json_cases, "timelines": json_timelines}, f, indent=2)
+    except Exception:
+        pass
 
 class RecoveryCaseService:
     """Service layer managing recovery cases, approvals, timeline, and analytics (§9 & §15)."""
@@ -193,10 +191,14 @@ class RecoveryCaseService:
             pass
 
         # Fallback demo cases for local / demo merchant
-        filtered = DEMO_CASES_DATA
+        all_cases = get_all_demo_cases()
+        filtered = all_cases
         if status_filter:
-            filtered = [c for c in DEMO_CASES_DATA if c["status"] == status_filter]
+            filtered = [c for c in all_cases if c["status"] == status_filter]
         
+        total_len = len(filtered)
+        paginated_cases = filtered[offset : offset + page_size]
+
         items = [
             RecoveryCaseListItemResponse(
                 id=c["id"],
@@ -206,9 +208,9 @@ class RecoveryCaseService:
                 correlation_id=c["correlation_id"],
                 created_at=c["created_at"],
                 updated_at=c["updated_at"]
-            ) for c in filtered
+            ) for c in paginated_cases
         ]
-        return items, len(filtered)
+        return items, total_len
 
     async def get_case_detail(self, case_id: uuid.UUID) -> RecoveryCaseDetailResponse:
         """Fetch full case detail including payment, risk signals, AI & Policy decisions (§9.2)."""
@@ -270,7 +272,8 @@ class RecoveryCaseService:
             pass
 
         # Demo fallback for case detail
-        demo = next((c for c in DEMO_CASES_DATA if c["id"] == case_id), DEMO_CASES_DATA[0])
+        all_cases = get_all_demo_cases()
+        demo = next((c for c in all_cases if c["id"] == case_id), all_cases[0])
         return RecoveryCaseDetailResponse(
             id=demo["id"],
             status=demo["status"],
@@ -326,26 +329,25 @@ class RecoveryCaseService:
             pass
 
         # Demo fallback: synchronize case, payment, and audit timeline
-        for c in DEMO_CASES_DATA:
+        all_cases = get_all_demo_cases()
+        all_timelines = get_all_demo_timelines()
+        for c in all_cases:
             if c["id"] == case_id:
                 c["status"] = RecoveryCaseStatus.RECOVERED
                 c["payment_status"] = "recovered"
                 c["approval_status"] = "APPROVED"
                 c["updated_at"] = datetime.now(timezone.utc)
 
-                for p in DEMO_PAYMENTS_DATA:
-                    if p["id"] == c["payment_id"]:
-                        p["status"] = PaymentStatus.RECOVERED
-                        p["updated_at"] = datetime.now(timezone.utc)
-
-                if case_id not in DEMO_TIMELINES:
-                    DEMO_TIMELINES[case_id] = []
-                DEMO_TIMELINES[case_id].append({
+                if case_id not in all_timelines:
+                    all_timelines[case_id] = []
+                all_timelines[case_id].append({
                     "id": uuid.uuid4(),
                     "event_type": "ACTION_APPROVED_BY_OWNER",
                     "payload": {"decided_by": "owner@merchant.com", "action": c["action"], "status": "RECOVERED"},
                     "created_at": datetime.now(timezone.utc)
                 })
+                break
+        _persist_demo_state()
         return await self.get_case_detail(case_id)
 
     async def reject_case(self, case_id: uuid.UUID, user_id: uuid.UUID) -> RecoveryCaseDetailResponse:
@@ -370,20 +372,24 @@ class RecoveryCaseService:
             pass
 
         # Demo fallback: synchronize case and audit timeline
-        for c in DEMO_CASES_DATA:
+        all_cases = get_all_demo_cases()
+        all_timelines = get_all_demo_timelines()
+        for c in all_cases:
             if c["id"] == case_id:
                 c["status"] = RecoveryCaseStatus.CLOSED
                 c["approval_status"] = "REJECTED"
                 c["updated_at"] = datetime.now(timezone.utc)
 
-                if case_id not in DEMO_TIMELINES:
-                    DEMO_TIMELINES[case_id] = []
-                DEMO_TIMELINES[case_id].append({
+                if case_id not in all_timelines:
+                    all_timelines[case_id] = []
+                all_timelines[case_id].append({
                     "id": uuid.uuid4(),
                     "event_type": "ACTION_REJECTED_BY_OWNER",
                     "payload": {"decided_by": "owner@merchant.com", "status": "CLOSED"},
                     "created_at": datetime.now(timezone.utc)
                 })
+                break
+        _persist_demo_state()
         return await self.get_case_detail(case_id)
 
     async def get_case_timeline(self, case_id: uuid.UUID) -> List[AuditLogTimelineItem]:
@@ -406,8 +412,10 @@ class RecoveryCaseService:
         except Exception:
             pass
 
-        demo = next((c for c in DEMO_CASES_DATA if c["id"] == case_id), DEMO_CASES_DATA[0])
-        entries = DEMO_TIMELINES.get(case_id, [
+        all_cases = get_all_demo_cases()
+        all_timelines = get_all_demo_timelines()
+        demo = next((c for c in all_cases if c["id"] == case_id), all_cases[0])
+        entries = all_timelines.get(case_id, [
             {
                 "id": uuid.uuid4(),
                 "event_type": "PAYMENT_FAILED_INGESTED",
@@ -479,6 +487,7 @@ class RecoveryCaseService:
             pass
 
         # Demo fallback for dashboard metrics
+        all_cases = get_all_demo_cases()
         recent_items = [
             RecoveryCaseListItemResponse(
                 id=c["id"],
@@ -488,11 +497,11 @@ class RecoveryCaseService:
                 correlation_id=c["correlation_id"],
                 created_at=c["created_at"],
                 updated_at=c["updated_at"]
-            ) for c in DEMO_CASES_DATA
+            ) for c in all_cases[:5]
         ]
 
-        failed_revenue = sum(c["amount_minor"] for c in DEMO_CASES_DATA if c["status"] != RecoveryCaseStatus.RECOVERED)
-        recovered_revenue = sum(c["amount_minor"] for c in DEMO_CASES_DATA if c["status"] == RecoveryCaseStatus.RECOVERED)
+        failed_revenue = sum(c["amount_minor"] for c in all_cases if c["status"] != RecoveryCaseStatus.RECOVERED)
+        recovered_revenue = sum(c["amount_minor"] for c in all_cases if c["status"] == RecoveryCaseStatus.RECOVERED)
         recoverable_revenue = failed_revenue + recovered_revenue
         recovery_rate = (recovered_revenue / recoverable_revenue) if recoverable_revenue > 0 else 0.0
 
@@ -501,7 +510,7 @@ class RecoveryCaseService:
             recoverable_revenue_minor=recoverable_revenue,
             recovered_revenue_minor=recovered_revenue,
             recovery_rate=round(recovery_rate, 4),
-            pending_cases=sum(1 for c in DEMO_CASES_DATA if c["status"] in (RecoveryCaseStatus.OPEN, RecoveryCaseStatus.PENDING_APPROVAL)),
-            escalations=sum(1 for c in DEMO_CASES_DATA if c["status"] == RecoveryCaseStatus.PENDING_APPROVAL),
+            pending_cases=sum(1 for c in all_cases if c["status"] in (RecoveryCaseStatus.OPEN, RecoveryCaseStatus.PENDING_APPROVAL)),
+            escalations=sum(1 for c in all_cases if c["status"] == RecoveryCaseStatus.PENDING_APPROVAL),
             recent_cases=recent_items
         )

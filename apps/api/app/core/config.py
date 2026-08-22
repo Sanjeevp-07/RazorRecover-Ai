@@ -48,8 +48,8 @@ class Settings(BaseSettings):
     
     # Auth JWT Configuration (§7)
     JWT_SECRET: str = "dev-jwt-secret-key-change-in-production-min-32"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200  # 30 days persistent session
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30       # 30 days persistent refresh
 
     model_config = SettingsConfigDict(
         env_file=".env",
