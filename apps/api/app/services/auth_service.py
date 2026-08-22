@@ -8,13 +8,13 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.merchant_repository import MerchantRepository
 from app.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token, decode_token
 from app.core.config import settings
-from app.schemas.auth import LoginRequest, TokenResponse, UserResponse
+from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserResponse
 from app.models.merchant_user import MerchantUser, UserRole
 from app.models.merchant import Merchant
 from app.core.crypto import encrypt_secret
 
 class AuthService:
-    """Service layer handling merchant user authentication and JWT rotation."""
+    """Service layer handling merchant user authentication, registration, and JWT rotation."""
     def __init__(self, session: AsyncSession):
         self.session = session
         self.user_repo = UserRepository(session)
@@ -24,8 +24,56 @@ class AuthService:
         """Retrieve user by ID via repository."""
         return await self.user_repo.get_by_id(user_id)
 
+    async def register_merchant_user(self, payload: RegisterRequest) -> Tuple[TokenResponse, MerchantUser]:
+        """Register a new merchant account and merchant owner user."""
+        existing_user = await self.user_repo.get_by_email(payload.email)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Account with this email already exists."
+            )
+
+        merchant = Merchant(
+            name=payload.merchant_name,
+            razorpay_key_id=settings.RAZORPAY_KEY_ID,
+            razorpay_key_secret_enc=encrypt_secret(settings.RAZORPAY_KEY_SECRET),
+            razorpay_webhook_secret_enc=encrypt_secret(settings.RAZORPAY_WEBHOOK_SECRET)
+        )
+        merchant = await self.merchant_repo.add(merchant)
+
+        user = MerchantUser(
+            merchant_id=merchant.id,
+            email=payload.email,
+            password_hash=get_password_hash(payload.password),
+            role=UserRole.OWNER,
+            is_active=True
+        )
+        user = await self.user_repo.add(user)
+        await self.session.commit()
+
+        access_token = create_access_token(
+            subject=str(user.id),
+            merchant_id=str(user.merchant_id)
+        )
+        refresh_token = create_refresh_token(
+            subject=str(user.id),
+            merchant_id=str(user.merchant_id)
+        )
+
+        token_response = TokenResponse(
+            access_token=access_token,
+            token_type="Bearer",
+            expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            refresh_token=refresh_token
+        )
+        return token_response, user
+
     async def authenticate_user(self, payload: LoginRequest) -> Tuple[TokenResponse, MerchantUser]:
         """Authenticate user credentials and issue access + refresh tokens."""
+        # Auto-provision demo account if logging in with owner@merchant.com (§7)
+        if payload.email.lower() == "owner@merchant.com":
+            await self.create_demo_merchant_owner_if_not_exists("owner@merchant.com", "password123", "Demo Merchant")
+
         user = await self.user_repo.get_by_email(payload.email)
         if not user or not verify_password(payload.password, user.password_hash):
             raise HTTPException(

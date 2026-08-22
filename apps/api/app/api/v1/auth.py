@@ -1,58 +1,61 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import get_db_session
-from app.schemas.auth import LoginRequest, TokenResponse, RefreshRequest, UserResponse
+from app.core.db import get_async_session
+from app.schemas.auth import LoginRequest, RegisterRequest, RefreshRequest, TokenResponse, UserResponse
 from app.services.auth_service import AuthService
 from app.api.v1.deps import get_current_merchant_user
 from app.models.merchant_user import MerchantUser
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+async def register(
+    payload: RegisterRequest,
+    session: AsyncSession = Depends(get_async_session)
+):
+    """
+    POST /api/v1/auth/register
+    Register a new merchant account and owner user. Returns access + refresh tokens.
+    """
+    service = AuthService(session)
+    token_response, _ = await service.register_merchant_user(payload)
+    return token_response
+
 @router.post("/login", response_model=TokenResponse)
 async def login(
     payload: LoginRequest,
-    response: Response,
-    session: AsyncSession = Depends(get_db_session)
+    session: AsyncSession = Depends(get_async_session)
 ):
     """
-    POST /api/v1/auth/login
-    Authenticates user and issues access token + sets refresh_token cookie.
+    POST /api/v1/auth/login (§7.1)
+    Authenticate merchant user email and password. Returns access + refresh tokens.
+    Rejects extra unallowed fields via Pydantic extra="forbid" schema rule.
     """
-    auth_service = AuthService(session)
-    token_response, user = await auth_service.authenticate_user(payload)
-    
-    # Set httpOnly cookie for refresh token per §7.1
-    if token_response.refresh_token:
-        response.set_cookie(
-            key="refresh_token",
-            value=token_response.refresh_token,
-            httponly=True,
-            secure=False,  # Set to True in production (HTTPS)
-            samesite="lax",
-            max_age=7 * 24 * 3600
-        )
+    service = AuthService(session)
+    token_response, _ = await service.authenticate_user(payload)
     return token_response
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_token(
+async def refresh(
     payload: RefreshRequest,
-    session: AsyncSession = Depends(get_db_session)
+    session: AsyncSession = Depends(get_async_session)
 ):
     """
-    POST /api/v1/auth/refresh
-    Rotates access token using refresh token.
+    POST /api/v1/auth/refresh (§7.1)
+    Issue new access token using a valid refresh token.
     """
-    auth_service = AuthService(session)
-    return await auth_service.refresh_access_token(payload.refresh_token)
+    service = AuthService(session)
+    return await service.refresh_access_token(payload.refresh_token)
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(
+async def get_me(
     current_user: MerchantUser = Depends(get_current_merchant_user)
 ):
     """
-    GET /api/v1/auth/me
-    Returns current authenticated merchant user details.
+    GET /api/v1/auth/me (§7.1)
+    Retrieve authenticated user profile and merchant scoping information.
+    Protected route requiring valid Bearer access token.
     """
     return UserResponse(
         id=current_user.id,
