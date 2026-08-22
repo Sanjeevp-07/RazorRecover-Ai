@@ -26,3 +26,6 @@ lint-imports:
 
 contracts:
 	@echo "Generating OpenAPI contracts..."
+
+eval:
+	python apps/api/app/ai/evaluator.py

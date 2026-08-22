@@ -49,6 +49,17 @@ def create_app() -> FastAPI:
     app.include_router(cases_router, prefix=settings.API_V1_STR)
     app.include_router(dashboard_router, prefix=settings.API_V1_STR)
 
+    @app.middleware("http")
+    async def correlation_id_middleware(request: Request, call_next):
+        correlation_id = request.headers.get("X-Correlation-ID") or request.headers.get("x-correlation-id")
+        if correlation_id:
+            from app.core.observability import correlation_id_ctx
+            correlation_id_ctx.set(correlation_id)
+        response = await call_next(request)
+        if correlation_id:
+            response.headers["X-Correlation-ID"] = correlation_id
+        return response
+
     @app.get("/health", tags=["Health"])
     async def health_check():
         return {
@@ -56,6 +67,15 @@ def create_app() -> FastAPI:
             "app_name": settings.APP_NAME,
             "version": "2.0.0"
         }
+
+    @app.get("/metrics", tags=["Observability"])
+    async def prometheus_metrics():
+        from fastapi.responses import PlainTextResponse
+        from app.core.observability import metrics
+        return PlainTextResponse(
+            content=metrics.generate_prometheus_metrics(),
+            media_type="text/plain; version=0.0.4; charset=utf-8"
+        )
 
     return app
 

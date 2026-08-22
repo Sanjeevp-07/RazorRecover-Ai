@@ -1,0 +1,2882 @@
+[
+  {
+    "case_id": "syn-case-0001",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000001",
+      "amount_minor": 217621,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.86,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.92,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0002",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000002",
+      "amount_minor": 153736,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.9,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.97,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0003",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000003",
+      "amount_minor": 88331,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.82,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.9,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0004",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000004",
+      "amount_minor": 297127,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.25,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.15,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0005",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000005",
+      "amount_minor": 435514,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.27,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.13,
+      "confidence": 0.85,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0006",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000006",
+      "amount_minor": 271571,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.92,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.82,
+      "confidence": 0.97,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0007",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000007",
+      "amount_minor": 153587,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.27,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.37,
+      "confidence": 0.96,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0008",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000008",
+      "amount_minor": 9937923,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.92,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.86,
+      "confidence": 0.92,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0009",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000009",
+      "amount_minor": 382627,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.54,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.37,
+      "confidence": 0.93,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0010",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000000a",
+      "amount_minor": 250814,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.92,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0011",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000000b",
+      "amount_minor": 161833,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.67,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.62,
+      "confidence": 0.9,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0012",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000000c",
+      "amount_minor": 216640,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.96,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.87,
+      "confidence": 0.9,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0013",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000000d",
+      "amount_minor": 239973,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.95,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0014",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000000e",
+      "amount_minor": 124862,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.89,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.9,
+      "confidence": 0.91,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0015",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000000f",
+      "amount_minor": 392585,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.36,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.13,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0016",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000010",
+      "amount_minor": 320087,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.31,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.12,
+      "confidence": 0.9,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0017",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000011",
+      "amount_minor": 160615,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.98,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.87,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0018",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000012",
+      "amount_minor": 361740,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.33,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.53,
+      "confidence": 0.91,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0019",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000013",
+      "amount_minor": 7842608,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.84,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.83,
+      "confidence": 0.88,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0020",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000014",
+      "amount_minor": 749245,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.62,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.28,
+      "confidence": 0.88,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0021",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000015",
+      "amount_minor": 417138,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.9,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.96,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0022",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000016",
+      "amount_minor": 448962,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.53,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.59,
+      "confidence": 0.93,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0023",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000017",
+      "amount_minor": 150039,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.93,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.9,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0024",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000018",
+      "amount_minor": 106019,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.9,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.91,
+      "confidence": 0.97,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0025",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000019",
+      "amount_minor": 248024,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.86,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.9,
+      "confidence": 0.87,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0026",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000001a",
+      "amount_minor": 339292,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.42,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.09,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0027",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000001b",
+      "amount_minor": 466171,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.33,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.13,
+      "confidence": 0.89,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0028",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000001c",
+      "amount_minor": 316161,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.95,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.82,
+      "confidence": 0.95,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0029",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000001d",
+      "amount_minor": 378058,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.43,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.47,
+      "confidence": 0.91,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0030",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000001e",
+      "amount_minor": 11589806,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.93,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.87,
+      "confidence": 0.89,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0031",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000001f",
+      "amount_minor": 552572,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.62,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.39,
+      "confidence": 0.86,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0032",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000020",
+      "amount_minor": 186287,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.95,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.87,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0033",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000021",
+      "amount_minor": 369184,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.69,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.48,
+      "confidence": 0.92,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0034",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000022",
+      "amount_minor": 160923,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.98,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.94,
+      "confidence": 0.95,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0035",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000023",
+      "amount_minor": 205461,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.93,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0036",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000024",
+      "amount_minor": 194845,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.94,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.92,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0037",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000025",
+      "amount_minor": 238627,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.21,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.13,
+      "confidence": 0.93,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0038",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000026",
+      "amount_minor": 237220,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.29,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.03,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0039",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000027",
+      "amount_minor": 223239,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.89,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.83,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0040",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000028",
+      "amount_minor": 382713,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.28,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.54,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0041",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000029",
+      "amount_minor": 9576817,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.92,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.87,
+      "confidence": 0.87,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0042",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000002a",
+      "amount_minor": 990993,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.51,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.28,
+      "confidence": 0.91,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0043",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000002b",
+      "amount_minor": 178401,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.92,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0044",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000002c",
+      "amount_minor": 501793,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.57,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.62,
+      "confidence": 0.88,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0045",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000002d",
+      "amount_minor": 190584,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.89,
+      "confidence": 0.89,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0046",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000002e",
+      "amount_minor": 139523,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.87,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.97,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0047",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000002f",
+      "amount_minor": 221711,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.93,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.96,
+      "confidence": 0.97,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0048",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000030",
+      "amount_minor": 193597,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.3,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.12,
+      "confidence": 0.96,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0049",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000031",
+      "amount_minor": 286317,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.23,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.15,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0050",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000032",
+      "amount_minor": 199552,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.93,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.91,
+      "confidence": 0.98,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0051",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000033",
+      "amount_minor": 355155,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.28,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.41,
+      "confidence": 0.98,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0052",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000034",
+      "amount_minor": 14596526,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.81,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.8,
+      "confidence": 0.86,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0053",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000035",
+      "amount_minor": 827276,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.63,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.31,
+      "confidence": 0.86,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0054",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000036",
+      "amount_minor": 192001,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.94,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0055",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000037",
+      "amount_minor": 331694,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.52,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.63,
+      "confidence": 0.88,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0056",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000038",
+      "amount_minor": 60418,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.93,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.89,
+      "confidence": 0.93,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0057",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000039",
+      "amount_minor": 265868,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.94,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.92,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0058",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000003a",
+      "amount_minor": 149629,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.87,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.93,
+      "confidence": 0.89,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0059",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000003b",
+      "amount_minor": 393536,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.39,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.06,
+      "confidence": 0.91,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0060",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000003c",
+      "amount_minor": 252418,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.16,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.05,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0061",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000003d",
+      "amount_minor": 86066,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.98,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.84,
+      "confidence": 0.87,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0062",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000003e",
+      "amount_minor": 258606,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.37,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.55,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0063",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000003f",
+      "amount_minor": 14804682,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.84,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.85,
+      "confidence": 0.97,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0064",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000040",
+      "amount_minor": 577312,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.43,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.22,
+      "confidence": 0.92,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0065",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000041",
+      "amount_minor": 297721,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0066",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000042",
+      "amount_minor": 567171,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.55,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.55,
+      "confidence": 0.97,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0067",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000043",
+      "amount_minor": 74195,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.93,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.93,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0068",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000044",
+      "amount_minor": 168587,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.9,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.92,
+      "confidence": 0.95,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0069",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000045",
+      "amount_minor": 192115,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.89,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.89,
+      "confidence": 0.97,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0070",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000046",
+      "amount_minor": 386959,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.24,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.06,
+      "confidence": 0.9,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0071",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000047",
+      "amount_minor": 277643,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.24,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.03,
+      "confidence": 0.9,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0072",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000048",
+      "amount_minor": 237595,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.9,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.83,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0073",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000049",
+      "amount_minor": 313058,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.44,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.5,
+      "confidence": 0.97,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0074",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000004a",
+      "amount_minor": 8226327,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.95,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.87,
+      "confidence": 0.96,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0075",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000004b",
+      "amount_minor": 488073,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.58,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.27,
+      "confidence": 0.97,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0076",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000004c",
+      "amount_minor": 280111,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.88,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0077",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000004d",
+      "amount_minor": 570150,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.59,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.49,
+      "confidence": 0.97,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0078",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000004e",
+      "amount_minor": 130003,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.96,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.94,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0079",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000004f",
+      "amount_minor": 201255,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.86,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.92,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0080",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000050",
+      "amount_minor": 172050,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.9,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.91,
+      "confidence": 0.98,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0081",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000051",
+      "amount_minor": 236808,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.43,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.07,
+      "confidence": 0.98,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0082",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000052",
+      "amount_minor": 339180,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.16,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.1,
+      "confidence": 0.89,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0083",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000053",
+      "amount_minor": 278796,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.95,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.86,
+      "confidence": 0.9,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0084",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000054",
+      "amount_minor": 199656,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.3,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.49,
+      "confidence": 0.85,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0085",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000055",
+      "amount_minor": 8805700,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.85,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.76,
+      "confidence": 0.94,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0086",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000056",
+      "amount_minor": 953425,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.48,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.37,
+      "confidence": 0.94,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0087",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000057",
+      "amount_minor": 415878,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.88,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.9,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0088",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000058",
+      "amount_minor": 410671,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.53,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.53,
+      "confidence": 0.97,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0089",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000059",
+      "amount_minor": 246118,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.97,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.91,
+      "confidence": 0.89,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0090",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000005a",
+      "amount_minor": 100212,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.85,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.92,
+      "confidence": 0.95,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0091",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000005b",
+      "amount_minor": 164475,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.88,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.92,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0092",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000005c",
+      "amount_minor": 358072,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.43,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.17,
+      "confidence": 0.87,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0093",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000005d",
+      "amount_minor": 348785,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.25,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.1,
+      "confidence": 0.89,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0094",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000005e",
+      "amount_minor": 212749,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.9,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.82,
+      "confidence": 0.85,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0095",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000005f",
+      "amount_minor": 349108,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.37,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.5,
+      "confidence": 0.91,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0096",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000060",
+      "amount_minor": 8762081,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.81,
+      "confidence": 0.9,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0097",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000061",
+      "amount_minor": 987926,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.57,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.38,
+      "confidence": 0.96,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0098",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000062",
+      "amount_minor": 372899,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.87,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0099",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000063",
+      "amount_minor": 146328,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.61,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.63,
+      "confidence": 0.87,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0100",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000064",
+      "amount_minor": 260086,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.9,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0101",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000065",
+      "amount_minor": 332035,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.89,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.96,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0102",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000066",
+      "amount_minor": 196893,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.94,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.94,
+      "confidence": 0.91,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0103",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000067",
+      "amount_minor": 347073,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.26,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.15,
+      "confidence": 0.95,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0104",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000068",
+      "amount_minor": 454068,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.28,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.06,
+      "confidence": 0.86,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0105",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000069",
+      "amount_minor": 172942,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.84,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0106",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000006a",
+      "amount_minor": 179078,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.3,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.49,
+      "confidence": 0.94,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0107",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000006b",
+      "amount_minor": 12460328,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.86,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.83,
+      "confidence": 0.9,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0108",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000006c",
+      "amount_minor": 1173349,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.51,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.38,
+      "confidence": 0.93,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0109",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000006d",
+      "amount_minor": 160240,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.94,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.9,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0110",
+    "scenario": "ambiguous",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000006e",
+      "amount_minor": 304422,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Transaction declined by risk scoring filter",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.56,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.53,
+      "confidence": 0.97,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0111",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-00000000006f",
+      "amount_minor": 191091,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Payment expired during 3DS OTP verification",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.95,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.9,
+      "confidence": 0.93,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0112",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000070",
+      "amount_minor": 355972,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Issuer bank network timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.83,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.93,
+      "confidence": 0.85,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0113",
+    "scenario": "temp_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000071",
+      "amount_minor": 185989,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Temporary gateway communication failure",
+      "method": "netbanking"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.91,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.95,
+      "confidence": 0.97,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0114",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000072",
+      "amount_minor": 290017,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Exceeded maximum retry attempts at bank",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 4,
+      "customer_history_score": 0.21,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.11,
+      "confidence": 0.92,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  },
+  {
+    "case_id": "syn-case-0115",
+    "scenario": "repeated_failure",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000073",
+      "amount_minor": 244012,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Account blocked for online transactions",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.28,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.04,
+      "confidence": 0.91,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0116",
+    "scenario": "strong_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000074",
+      "amount_minor": 186396,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Insufficient balance on primary card",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.92,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.83,
+      "confidence": 0.89,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0117",
+    "scenario": "weak_history",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000075",
+      "amount_minor": 245886,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Do not honor - generic decline",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 2,
+      "customer_history_score": 0.4,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "SEND_NOTIFICATION",
+      "expected_probability": 0.52,
+      "confidence": 0.88,
+      "requires_human": false,
+      "expected_policy_decision": "ALLOW"
+    }
+  },
+  {
+    "case_id": "syn-case-0118",
+    "scenario": "high_amount",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000076",
+      "amount_minor": 13390439,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "High value transaction step-up auth timeout",
+      "method": "card"
+    },
+    "risk_signals": {
+      "retry_count": 1,
+      "customer_history_score": 0.8,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "CREATE_PAYMENT_LINK",
+      "expected_probability": 0.83,
+      "confidence": 0.98,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0119",
+    "scenario": "suspicious_velocity",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000077",
+      "amount_minor": 535113,
+      "currency": "INR",
+      "status": "failed",
+      "failure_reason": "Velocity limit exceeded across multiple attempts",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 3,
+      "customer_history_score": 0.56,
+      "velocity_flag": true
+    },
+    "ground_truth": {
+      "recommended_action": "ESCALATE_CASE",
+      "expected_probability": 0.36,
+      "confidence": 0.93,
+      "requires_human": true,
+      "expected_policy_decision": "HUMAN_APPROVAL"
+    }
+  },
+  {
+    "case_id": "syn-case-0120",
+    "scenario": "already_recovered",
+    "payment": {
+      "id": "00000000-0000-0000-0000-000000000078",
+      "amount_minor": 279647,
+      "currency": "INR",
+      "status": "recovered",
+      "failure_reason": "Payment completed on alternate session",
+      "method": "upi"
+    },
+    "risk_signals": {
+      "retry_count": 0,
+      "customer_history_score": 0.87,
+      "velocity_flag": false
+    },
+    "ground_truth": {
+      "recommended_action": "NO_ACTION",
+      "expected_probability": 0.0,
+      "confidence": 0.87,
+      "requires_human": false,
+      "expected_policy_decision": "DENY"
+    }
+  }
+]

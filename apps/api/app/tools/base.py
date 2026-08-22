@@ -24,3 +24,5 @@ class BaseTool(ABC):
         Returns (success: bool, output_payload: dict, error_category: str).
         """
         pass
+
+generate_idempotency_key = BaseTool.generate_idempotency_key
