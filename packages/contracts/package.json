@@ -1,0 +1,14 @@
+{
+  "name": "@razorrecover/contracts",
+  "version": "2.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "private": true,
+  "scripts": {
+    "generate": "openapi-typescript ../../apps/api/openapi.json -o ./index.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^6.7.4",
+    "typescript": "^5.3.3"
+  }
+}
