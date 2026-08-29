@@ -55,14 +55,14 @@ export default function DashboardPage() {
       {/* Header Bar */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Recovery Dashboard</h2>
-          <p className="text-xs text-slate-400 mt-1">Real-time revenue recovery metrics and case activity</p>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Recovery Dashboard</h2>
+          <p className="text-xs text-slate-500 mt-1 font-medium">Real-time revenue recovery metrics and case activity</p>
         </div>
         <button
           onClick={() => refetch()}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition-colors"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
           <span>Refresh</span>
         </button>
       </div>
@@ -114,15 +114,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Recovery Cases List (§19) */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800">
+      <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white shadow-xs">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-white">Recent Recovery Cases</h3>
-            <p className="text-xs text-slate-400">Latest payment failure ingestion events</p>
+            <h3 className="text-lg font-bold text-slate-900">Recent Recovery Cases</h3>
+            <p className="text-xs text-slate-500 font-medium">Latest payment failure ingestion events</p>
           </div>
           <Link
             href="/recovery"
-            className="flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
           >
             <span>View All Cases</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -131,7 +131,7 @@ export default function DashboardPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-900/60 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
+            <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
               <tr>
                 <th className="p-3.5">Case ID</th>
                 <th className="p-3.5">Payment ID</th>
@@ -140,48 +140,51 @@ export default function DashboardPage() {
                 <th className="p-3.5 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {data?.recent_cases && data.recent_cases.length > 0 ? (
                 data.recent_cases.map((c: any) => (
-                  <tr key={c.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3.5">
-                      <Link href={`/recovery/${c.id}`}>
-                        <ShortIdBadge id={c.id} prefix="case" />
-                      </Link>
+                  <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 font-mono text-slate-800 font-semibold">
+                      <ShortIdBadge id={c.id} />
+                    </td>
+                    <td className="p-3.5 font-mono text-slate-600">
+                      <ShortIdBadge id={c.payment_id} />
                     </td>
                     <td className="p-3.5">
-                      <Link href={`/payments/${c.payment_id}`}>
-                        <ShortIdBadge id={c.payment_id} prefix="pay" />
-                      </Link>
-                    </td>
-                    <td className="p-3.5">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${
                         c.status === "RECOVERED"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : c.status === "PENDING_APPROVAL"
-                          ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                          : "bg-slate-800 text-slate-300 border border-slate-700"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : c.status === "ESCALATED_HUMAN"
+                          ? "bg-amber-50 text-amber-700 border-amber-200"
+                          : c.status === "FAILED"
+                          ? "bg-rose-50 text-rose-700 border-rose-200"
+                          : "bg-blue-50 text-blue-700 border-blue-200"
                       }`}>
                         {c.status}
                       </span>
                     </td>
-                    <td className="p-3.5 text-slate-400">
-                      {new Date(c.created_at).toLocaleString("en-IN")}
+                    <td className="p-3.5 text-slate-500 font-medium">
+                      {new Date(c.created_at || Date.now()).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </td>
                     <td className="p-3.5 text-right">
                       <Link
                         href={`/recovery/${c.id}`}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-medium transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold transition-colors"
                       >
-                        Inspect
+                        Detail
                       </Link>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500">
-                    No recent recovery cases found.
+                  <td colSpan={5} className="p-8 text-center text-slate-400">
+                    No recent recovery cases found. Run live simulation in scripts/stream_live_traffic.py
                   </td>
                 </tr>
               )}

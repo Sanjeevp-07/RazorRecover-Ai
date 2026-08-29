@@ -3,7 +3,7 @@ import React from "react";
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-xl bg-slate-800/40 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.8s_infinite] before:bg-gradient-to-r before:from-transparent before:via-indigo-500/10 before:to-transparent ${className}`}
+      className={`relative overflow-hidden rounded-xl bg-slate-200/60 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.8s_infinite] before:bg-gradient-to-r before:from-transparent before:via-blue-500/10 before:to-transparent ${className}`}
     />
   );
 }
@@ -16,7 +16,7 @@ export function DecisionChainSkeleton() {
         <Skeleton className="h-4 w-36" />
       </div>
 
-      <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel p-6 rounded-2xl border border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <Skeleton className="h-7 w-64" />
@@ -33,7 +33,7 @@ export function DecisionChainSkeleton() {
       {/* 3-column Cards Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Risk Signals */}
-        <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+        <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white space-y-4">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-amber-500/20 animate-pulse" />
             <Skeleton className="h-4 w-28" />
@@ -46,9 +46,9 @@ export function DecisionChainSkeleton() {
         </div>
 
         {/* AI Recommendation */}
-        <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4 relative overflow-hidden">
+        <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white space-y-4 relative overflow-hidden">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-indigo-500/30 animate-ping" />
+            <div className="w-4 h-4 rounded-full bg-blue-500/30 animate-ping" />
             <Skeleton className="h-4 w-36" />
           </div>
           <div className="space-y-3 pt-2">
@@ -59,7 +59,7 @@ export function DecisionChainSkeleton() {
         </div>
 
         {/* Policy Decision */}
-        <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+        <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white space-y-4">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-emerald-500/20 animate-pulse" />
             <Skeleton className="h-4 w-32" />
@@ -73,9 +73,9 @@ export function DecisionChainSkeleton() {
       </div>
 
       {/* Timeline Skeleton */}
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+      <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-indigo-500/20" />
+          <div className="w-4 h-4 rounded-full bg-blue-500/20" />
           <Skeleton className="h-4 w-40" />
         </div>
         <div className="space-y-3 pt-2">
@@ -103,20 +103,20 @@ export function TablePageSkeleton({
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1.5">
-          <h2 className="text-2xl font-bold text-white tracking-tight">{title}</h2>
-          <p className="text-xs text-slate-400">{subtitle}</p>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{title}</h2>
+          <p className="text-xs text-slate-500 font-medium">{subtitle}</p>
         </div>
         <Skeleton className="h-9 w-40 rounded-xl" />
       </div>
 
-      <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-        <div className="p-4 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between">
+      <div className="glass-panel rounded-2xl border border-slate-200 bg-white overflow-hidden">
+        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-28" />
         </div>
-        <div className="divide-y divide-slate-800/60 p-2 space-y-2">
+        <div className="divide-y divide-slate-100 p-2 space-y-2">
           {[...Array(rows)].map((_, i) => (
             <div key={i} className="flex items-center justify-between p-3">
               <Skeleton className="h-5 w-24" />
@@ -137,15 +137,15 @@ export function DashboardSkeleton() {
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
         <div className="space-y-1.5">
-          <h2 className="text-2xl font-bold text-white tracking-tight">Recovery Dashboard</h2>
-          <p className="text-xs text-slate-400">Real-time revenue recovery metrics and case activity</p>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Recovery Dashboard</h2>
+          <p className="text-xs text-slate-500 font-medium">Real-time revenue recovery metrics and case activity</p>
         </div>
         <Skeleton className="h-8 w-24 rounded-xl" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-32 glass-panel rounded-2xl border border-slate-800 p-5 space-y-3 relative overflow-hidden">
+          <div key={i} className="h-32 glass-panel rounded-2xl border border-slate-200 bg-white p-5 space-y-3 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <Skeleton className="h-3.5 w-16" />
               <Skeleton className="h-7 w-7 rounded-lg" />
@@ -156,7 +156,7 @@ export function DashboardSkeleton() {
         ))}
       </div>
 
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+      <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white space-y-4">
         <div className="flex items-center justify-between mb-4">
           <Skeleton className="h-5 w-44" />
           <Skeleton className="h-4 w-28" />

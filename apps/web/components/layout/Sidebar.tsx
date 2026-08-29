@@ -25,15 +25,15 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-screen fixed left-0 top-0 bg-[#0f172a]/80 backdrop-blur-md border-r border-slate-800 flex flex-col z-30">
+    <aside className="w-64 h-screen fixed left-0 top-0 bg-white border-r border-slate-200 flex flex-col z-30 shadow-xs">
       {/* Brand Header */}
-      <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+      <div className="p-6 border-b border-slate-100 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
           <ShieldCheck className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h1 className="font-bold text-lg text-white tracking-wide">RazorRecover</h1>
-          <p className="text-xs text-indigo-400 font-medium">AI Recovery Agent</p>
+          <h1 className="font-extrabold text-lg text-slate-900 tracking-tight">RazorRecover</h1>
+          <p className="text-[11px] text-blue-600 font-bold uppercase tracking-wider">AI Recovery Agent</p>
         </div>
       </div>
 
@@ -49,11 +49,11 @@ export function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-gradient-to-r from-indigo-600/30 to-violet-600/10 text-white border border-indigo-500/30 shadow-md shadow-indigo-500/10"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                  ? "bg-blue-50/90 text-blue-600 font-semibold border-l-4 border-blue-600 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? "text-indigo-400" : "text-slate-400"}`} />
+              <Icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
               <span>{item.label}</span>
             </Link>
           );
@@ -61,8 +61,8 @@ export function Sidebar() {
       </nav>
 
       {/* Footer Info */}
-      <div className="p-4 border-t border-slate-800/80 text-xs text-slate-500 text-center">
-        v2.0 — Architecture Baseline
+      <div className="p-4 border-t border-slate-100 text-xs text-slate-400 text-center font-medium">
+        v3.0 — Production Ready
       </div>
     </aside>
   );

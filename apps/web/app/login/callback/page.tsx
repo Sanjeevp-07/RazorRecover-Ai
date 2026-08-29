@@ -42,15 +42,15 @@ export default function AuthCallbackPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
-      <div className="w-full max-w-sm p-8 glass-card rounded-2xl border border-slate-800 text-center space-y-4">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+      <div className="w-full max-w-sm p-8 glass-card rounded-2xl border border-slate-200 bg-white shadow-lg text-center space-y-4">
+        <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
           <ShieldCheck className="w-8 h-8 text-white" />
         </div>
-        <div className="flex items-center justify-center gap-2 text-indigo-400">
+        <div className="flex items-center justify-center gap-2 text-blue-600">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm font-semibold text-white">Google OAuth Authentication</span>
+          <span className="text-sm font-bold text-slate-900">Google OAuth Authentication</span>
         </div>
-        <p className="text-xs text-slate-400">{statusMsg}</p>
+        <p className="text-xs text-slate-500 font-medium">{statusMsg}</p>
       </div>
     </div>
   );

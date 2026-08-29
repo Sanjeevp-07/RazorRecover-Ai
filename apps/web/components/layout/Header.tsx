@@ -7,25 +7,25 @@ export function Header() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="h-16 border-b border-slate-800/80 bg-[#0f172a]/60 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
-      <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700/50">
-        <Lock className="w-3.5 h-3.5 text-emerald-400" />
-        <span>Environment: <strong className="text-white">Razorpay Test Mode</strong></span>
+    <header className="h-16 border-b border-slate-200 bg-white/90 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20 shadow-xs">
+      <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+        <Lock className="w-3.5 h-3.5 text-emerald-600" />
+        <span>Environment: <strong className="text-emerald-950 font-bold">Razorpay Test Mode</strong></span>
       </div>
 
       <div className="flex items-center gap-4">
         {user ? (
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-xs">
-              <User className="w-4 h-4 text-indigo-400" />
-              <span className="text-slate-200 font-medium">{user.email}</span>
-              <span className="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold uppercase text-[10px]">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs shadow-2xs">
+              <User className="w-4 h-4 text-blue-600" />
+              <span className="text-slate-800 font-semibold">{user.email}</span>
+              <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 font-bold uppercase text-[10px]">
                 {user.role}
               </span>
             </div>
             <button
               onClick={logout}
-              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 rounded-lg transition-colors"
+              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
               title="Logout"
             >
               <LogOut className="w-4 h-4" />
@@ -34,7 +34,7 @@ export function Header() {
         ) : (
           <a
             href="/login"
-            className="text-xs font-medium px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+            className="text-xs font-bold px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm"
           >
             Login
           </a>

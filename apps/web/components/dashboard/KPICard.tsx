@@ -10,24 +10,24 @@ interface KPICardProps {
 
 const COLOR_MAPS = {
   rose: {
-    iconBg: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    border: "hover:border-rose-500/30",
+    iconBg: "bg-rose-50 text-rose-600 border-rose-200",
+    border: "hover:border-rose-300",
   },
   indigo: {
-    iconBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-    border: "hover:border-indigo-500/30",
+    iconBg: "bg-blue-50 text-blue-600 border-blue-200",
+    border: "hover:border-blue-300",
   },
   emerald: {
-    iconBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    border: "hover:border-emerald-500/30",
+    iconBg: "bg-emerald-50 text-emerald-600 border-emerald-200",
+    border: "hover:border-emerald-300",
   },
   amber: {
-    iconBg: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    border: "hover:border-amber-500/30",
+    iconBg: "bg-amber-50 text-amber-600 border-amber-200",
+    border: "hover:border-amber-300",
   },
   violet: {
-    iconBg: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-    border: "hover:border-violet-500/30",
+    iconBg: "bg-violet-50 text-violet-600 border-violet-200",
+    border: "hover:border-violet-300",
   },
 };
 
@@ -35,9 +35,9 @@ export function KPICard({ title, value, subtitle, icon: Icon, color }: KPICardPr
   const styles = COLOR_MAPS[color];
 
   return (
-    <div className={`glass-card p-6 rounded-2xl ${styles.border} flex flex-col justify-between`}>
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <div className={`glass-card p-5 rounded-2xl ${styles.border} flex flex-col justify-between shadow-xs bg-white`}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
           {title}
         </span>
         <div className={`p-2.5 rounded-xl border ${styles.iconBg}`}>
@@ -45,8 +45,8 @@ export function KPICard({ title, value, subtitle, icon: Icon, color }: KPICardPr
         </div>
       </div>
       <div>
-        <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
-        {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+        <div className="text-xl font-extrabold text-slate-900 tracking-tight">{value}</div>
+        {subtitle && <p className="text-[11px] text-slate-500 mt-1 font-medium">{subtitle}</p>}
       </div>
     </div>
   );

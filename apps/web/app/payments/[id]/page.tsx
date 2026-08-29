@@ -28,15 +28,15 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
           <Skeleton className="h-7 w-24 rounded-full" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Skeleton className="h-72 w-full rounded-2xl" />
-          <Skeleton className="h-72 w-full rounded-2xl" />
+          <Skeleton className="h-72 w-full rounded-2xl bg-white border border-slate-200" />
+          <Skeleton className="h-72 w-full rounded-2xl bg-white border border-slate-200" />
         </div>
       </div>
     );
   }
 
   if (!payment) {
-    return <div className="p-8 text-rose-400">Payment not found.</div>;
+    return <div className="p-8 text-rose-600 font-bold">Payment not found.</div>;
   }
 
   const formatCurrency = (amountMinor: number = 0) => {
@@ -50,7 +50,7 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
     <div className="space-y-6 max-w-5xl">
       <Link
         href="/payments"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+        className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to Payments</span>
@@ -58,16 +58,16 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Payment Details</h2>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Payment Details</h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-slate-400">Payment ID:</span>
+            <span className="text-xs text-slate-500 font-medium">Payment ID:</span>
             <ShortIdBadge id={payment.id} prefix="pay" />
           </div>
         </div>
-        <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase ${
+        <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase border ${
           payment.status === "captured" || payment.status === "recovered"
-            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-            : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : "bg-rose-50 text-rose-700 border-rose-200"
         }`}>
           {payment.status}
         </span>
@@ -75,65 +75,65 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Provider Fields Card */}
-        <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-indigo-400" />
+        <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white shadow-xs space-y-4">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-blue-600" />
             <span>Provider Transaction Fields</span>
           </h3>
 
           <div className="space-y-3 text-xs">
-            <div className="flex justify-between py-2 border-b border-slate-800">
-              <span className="text-slate-400">Amount</span>
-              <span className="font-bold text-white text-sm">{formatCurrency(payment.amount_minor)}</span>
+            <div className="flex justify-between py-2 border-b border-slate-100">
+              <span className="text-slate-500 font-medium">Amount</span>
+              <span className="font-extrabold text-slate-900 text-sm">{formatCurrency(payment.amount_minor)}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-800">
-              <span className="text-slate-400">External Provider ID</span>
-              <span className="font-mono text-slate-200">{payment.external_payment_id}</span>
+            <div className="flex justify-between py-2 border-b border-slate-100">
+              <span className="text-slate-500 font-medium">External Provider ID</span>
+              <span className="font-mono font-bold text-slate-700">{payment.external_payment_id}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-800">
-              <span className="text-slate-400">Currency</span>
-              <span className="font-semibold text-slate-200">{payment.currency}</span>
+            <div className="flex justify-between py-2 border-b border-slate-100">
+              <span className="text-slate-500 font-medium">Currency</span>
+              <span className="font-semibold text-slate-800">{payment.currency}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-800">
-              <span className="text-slate-400">Payment Method</span>
-              <span className="font-semibold text-slate-200">{payment.method || "N/A"}</span>
+            <div className="flex justify-between py-2 border-b border-slate-100">
+              <span className="text-slate-500 font-medium">Payment Method</span>
+              <span className="font-semibold text-slate-800">{payment.method || "N/A"}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-800">
-              <span className="text-slate-400">Failure Reason</span>
-              <span className="text-rose-400 font-medium">{payment.failure_reason || "None"}</span>
+            <div className="flex justify-between py-2 border-b border-slate-100">
+              <span className="text-slate-500 font-medium">Failure Reason</span>
+              <span className="text-rose-600 font-bold">{payment.failure_reason || "None"}</span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-slate-400">Ingested At</span>
-              <span className="text-slate-300">{new Date(payment.created_at).toLocaleString("en-IN")}</span>
+              <span className="text-slate-500 font-medium">Ingested At</span>
+              <span className="text-slate-700 font-medium">{new Date(payment.created_at).toLocaleString("en-IN")}</span>
             </div>
           </div>
         </div>
 
         {/* Linked Case Card */}
-        <div className="glass-panel rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+        <div className="glass-panel rounded-2xl p-6 border border-slate-200 bg-white shadow-xs flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2 mb-4">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Linked Recovery Case</span>
             </h3>
 
             {payment.recovery_case ? (
               <div className="space-y-3 text-xs">
-                <div className="flex justify-between py-2 border-b border-slate-800">
-                  <span className="text-slate-400">Case ID</span>
-                  <span className="font-mono text-indigo-300">{payment.recovery_case.id}</span>
+                <div className="flex justify-between py-2 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Case ID</span>
+                  <span className="font-mono font-bold text-blue-600">{payment.recovery_case.id}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-800">
-                  <span className="text-slate-400">Case Status</span>
-                  <span className="font-bold text-amber-400">{payment.recovery_case.status}</span>
+                <div className="flex justify-between py-2 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Case Status</span>
+                  <span className="font-extrabold text-amber-700">{payment.recovery_case.status}</span>
                 </div>
                 <div className="flex justify-between py-2">
-                  <span className="text-slate-400">Correlation ID</span>
-                  <span className="font-mono text-slate-400 text-[10px]">{payment.recovery_case.correlation_id}</span>
+                  <span className="text-slate-500 font-medium">Correlation ID</span>
+                  <span className="font-mono text-slate-500 text-[10px]">{payment.recovery_case.correlation_id}</span>
                 </div>
               </div>
             ) : (
-              <div className="py-8 text-center text-slate-500 text-xs">
+              <div className="py-8 text-center text-slate-400 text-xs font-medium">
                 No active recovery case linked to this payment.
               </div>
             )}
@@ -142,7 +142,7 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
           {payment.recovery_case && (
             <Link
               href={`/recovery/${payment.recovery_case.id}`}
-              className="mt-6 w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+              className="mt-6 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-sm"
             >
               <span>Inspect Recovery Case Chain</span>
               <ExternalLink className="w-3.5 h-3.5" />
