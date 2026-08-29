@@ -12,6 +12,7 @@ class ActionExecutionStatus(str, enum.Enum):
     SUCCEEDED = "SUCCEEDED"
     FAILED = "FAILED"
     RETRYING = "RETRYING"
+    SUPPRESSED_CONTROL = "SUPPRESSED_CONTROL"
 
 class ActionExecution(Base):
     __tablename__ = "action_executions"

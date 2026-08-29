@@ -5,6 +5,7 @@ from app.core.db import get_db_session
 from app.api.v1.deps import get_current_merchant_user
 from app.models.merchant_user import MerchantUser
 from app.schemas.analytics import AnalyticsPerformanceResponse
+from app.schemas.lift import CausalLiftResponse
 from app.services.recovery_case_service import RecoveryCaseService
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
@@ -20,3 +21,15 @@ async def get_analytics_performance(
     """
     service = RecoveryCaseService(session, current_user.merchant_id)
     return await service.get_analytics_performance()
+
+@router.get("/lift", response_model=CausalLiftResponse)
+async def get_causal_lift_analytics(
+    current_user: MerchantUser = Depends(get_current_merchant_user),
+    session: AsyncSession = Depends(get_db_session)
+):
+    """
+    GET /api/v1/analytics/lift (§29).
+    Returns causal lift measurement comparing treatment vs control cohorts.
+    """
+    service = RecoveryCaseService(session, current_user.merchant_id)
+    return await service.get_causal_lift_analytics()

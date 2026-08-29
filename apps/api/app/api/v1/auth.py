@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db_session
-from app.schemas.auth import LoginRequest, TokenResponse, RefreshRequest, UserResponse
+from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, RefreshRequest, UserResponse
 from app.services.auth_service import AuthService
 from app.api.v1.deps import get_current_merchant_user
 from app.models.merchant_user import MerchantUser
@@ -22,13 +22,36 @@ async def login(
     auth_service = AuthService(session)
     token_response, user = await auth_service.authenticate_user(payload)
     
-    # Set httpOnly cookie for refresh token per §7.1
     if token_response.refresh_token:
         response.set_cookie(
             key="refresh_token",
             value=token_response.refresh_token,
             httponly=True,
-            secure=False,  # Set to True in production (HTTPS)
+            secure=False,
+            samesite="lax",
+            max_age=7 * 24 * 3600
+        )
+    return token_response
+
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+async def register(
+    payload: RegisterRequest,
+    response: Response,
+    session: AsyncSession = Depends(get_db_session)
+):
+    """
+    POST /api/v1/auth/register
+    Registers a new merchant user account and issues access + refresh tokens.
+    """
+    auth_service = AuthService(session)
+    token_response, user = await auth_service.register_user(payload)
+    
+    if token_response.refresh_token:
+        response.set_cookie(
+            key="refresh_token",
+            value=token_response.refresh_token,
+            httponly=True,
+            secure=False,
             samesite="lax",
             max_age=7 * 24 * 3600
         )
@@ -58,6 +81,6 @@ async def get_current_user_info(
         id=current_user.id,
         merchant_id=current_user.merchant_id,
         email=current_user.email,
-        role=current_user.role.value,
+        role=current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role),
         is_active=current_user.is_active
     )

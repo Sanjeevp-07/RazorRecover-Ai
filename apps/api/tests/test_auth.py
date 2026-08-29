@@ -44,3 +44,16 @@ async def test_auth_login_extra_fields_forbidden():
             "extra_unallowed_field": "hacker"
         })
         assert response.status_code == 422  # Validation error due to extra="forbid"
+
+@pytest.mark.asyncio
+async def test_auth_register_endpoint():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/v1/auth/register", json={
+            "merchant_name": "New Test Merchant",
+            "email": "newowner@testmerchant.com",
+            "password": "password123"
+        })
+        assert response.status_code == 201
+        data = response.json()
+        assert "access_token" in data
+        assert data["user"]["email"] == "newowner@testmerchant.com"

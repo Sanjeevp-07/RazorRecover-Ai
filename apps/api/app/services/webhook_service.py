@@ -15,6 +15,8 @@ from app.models.payment import Payment, PaymentStatus
 from app.models.recovery_case import RecoveryCase, RecoveryCaseStatus
 from app.services.state_machine import StateMachineManager
 
+from app.policy.failure_taxonomy_engine import FailureTaxonomyEngine
+
 class WebhookService:
     """Service layer handling Razorpay Webhook Ingestion & Event Processing (§10.2)."""
     def __init__(self, session: AsyncSession):
@@ -90,6 +92,16 @@ class WebhookService:
             payment_entity = contains_entity.get("payment", {}).get("entity", {})
             provider_payment_id = payment_entity.get("id")
             if provider_payment_id:
+                # 1. Deterministic Taxonomy Classification (§30)
+                taxonomy_res = FailureTaxonomyEngine.classify_failure(
+                    error_code=payment_entity.get("error_code"),
+                    error_description=payment_entity.get("error_description"),
+                    error_reason=payment_entity.get("error_reason"),
+                    error_source=payment_entity.get("error_source"),
+                    error_step=payment_entity.get("error_step"),
+                    method=payment_entity.get("method")
+                )
+
                 payment = await payment_repo.get_by_provider_id(provider_payment_id)
                 if not payment:
                     payment = Payment(
@@ -99,9 +111,17 @@ class WebhookService:
                         currency=payment_entity.get("currency", "INR"),
                         status=PaymentStatus.FAILED,
                         failure_reason=payment_entity.get("error_reason") or payment_entity.get("error_description"),
+                        failure_class=taxonomy_res.failure_class,
                         method=payment_entity.get("method")
                     )
                     payment = await payment_repo.add(payment)
+                else:
+                    payment.failure_class = taxonomy_res.failure_class
+                    payment.failure_reason = payment_entity.get("error_reason") or payment_entity.get("error_description")
+
+                # Authoritative state check: if payment already captured/recovered, skip (§10.4 & §30)
+                if payment.status in (PaymentStatus.CAPTURED, PaymentStatus.RECOVERED):
+                    return
 
                 # Create a recovery_case if none open for this payment (§10.1)
                 open_case = await case_repo.get_open_case_by_payment_id(payment.id)
@@ -117,7 +137,13 @@ class WebhookService:
                     await case_repo.add_audit_log(
                         correlation_id=correlation_id,
                         event_type="CASE_CREATED",
-                        payload={"case_id": str(new_case.id), "payment_id": str(payment.id)}
+                        payload={
+                            "case_id": str(new_case.id),
+                            "payment_id": str(payment.id),
+                            "failure_class": taxonomy_res.failure_class.value,
+                            "suggested_treatment": taxonomy_res.suggested_treatment,
+                            "native_retry_grace_minutes": taxonomy_res.native_retry_grace_minutes
+                        }
                     )
 
         elif event_type == "payment.captured":

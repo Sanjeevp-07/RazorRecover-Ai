@@ -1,6 +1,7 @@
 import uuid
+import httpx
 from datetime import datetime, timezone
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
@@ -8,7 +9,7 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.merchant_repository import MerchantRepository
 from app.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token, decode_token
 from app.core.config import settings
-from app.schemas.auth import LoginRequest, TokenResponse, UserResponse
+from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserResponse
 from app.models.merchant_user import MerchantUser, UserRole
 from app.models.merchant import Merchant
 from app.core.crypto import encrypt_secret
@@ -17,7 +18,7 @@ DEMO_MERCHANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 DEMO_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000002")
 
 class AuthService:
-    """Service layer handling merchant user authentication and JWT rotation."""
+    """Service layer handling merchant user authentication via Supabase Auth & local storage."""
     def __init__(self, session: AsyncSession):
         self.session = session
         self.user_repo = UserRepository(session)
@@ -44,15 +45,51 @@ class AuthService:
             )
         return None
 
+    async def _authenticate_with_supabase(self, email: str, password: str) -> Optional[Dict[str, Any]]:
+        """Attempt authentication using Supabase Auth REST API."""
+        if not settings.SUPABASE_URL or not settings.SUPABASE_ANON_KEY:
+            return None
+
+        url = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1/token?grant_type=password"
+        headers = {
+          "apikey": settings.SUPABASE_ANON_KEY,
+          "Content-Type": "application/json"
+        }
+        payload = {"email": email, "password": password}
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.post(url, json=payload, headers=headers)
+                if res.status_code == 200:
+                    return res.json()
+        except Exception:
+            pass
+        return None
+
     async def authenticate_user(self, payload: LoginRequest) -> Tuple[TokenResponse, MerchantUser]:
-        """Authenticate user credentials and issue access + refresh tokens."""
+        """Authenticate user credentials against Supabase Auth & DB repository."""
+        supabase_auth_result = await self._authenticate_with_supabase(payload.email, payload.password)
+        
         user = None
         try:
             user = await self.user_repo.get_by_email(payload.email)
         except Exception:
             user = None
 
-        # Auto-seed or fallback for demo owner credentials
+        if supabase_auth_result and not user:
+            # User authenticated via Supabase; provision local DB merchant & user profile
+            sp_user = supabase_auth_result.get("user", {})
+            user_id = uuid.UUID(sp_user.get("id")) if sp_user.get("id") else uuid.uuid4()
+            merchant_name = sp_user.get("user_metadata", {}).get("merchant_name", f"{payload.email.split('@')[0]} Enterprise")
+            
+            user = await self.provision_merchant_and_user(
+                user_id=user_id,
+                email=payload.email,
+                password=payload.password,
+                merchant_name=merchant_name
+            )
+
+        # Fallback seeding for demo credentials
         if not user and payload.email == "owner@merchant.com" and payload.password == "password123":
             try:
                 user = await self.create_demo_merchant_owner_if_not_exists(
@@ -61,7 +98,6 @@ class AuthService:
                     merchant_name="Demo Merchant Enterprise"
                 )
             except Exception:
-                # DB offline fallback during local dev
                 user = MerchantUser(
                     id=DEMO_USER_ID,
                     merchant_id=DEMO_MERCHANT_ID,
@@ -71,7 +107,7 @@ class AuthService:
                     is_active=True
                 )
 
-        if not user or not verify_password(payload.password, user.password_hash):
+        if not user or (not supabase_auth_result and not verify_password(payload.password, user.password_hash)):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
@@ -89,11 +125,11 @@ class AuthService:
         except Exception:
             pass
 
-        access_token = create_access_token(
+        access_token = supabase_auth_result.get("access_token") if supabase_auth_result else create_access_token(
             subject=str(user.id),
             merchant_id=str(user.merchant_id)
         )
-        refresh_token = create_refresh_token(
+        refresh_token = supabase_auth_result.get("refresh_token") if supabase_auth_result else create_refresh_token(
             subject=str(user.id),
             merchant_id=str(user.merchant_id)
         )
@@ -115,6 +151,42 @@ class AuthService:
         )
         return token_response, user
 
+    async def provision_merchant_and_user(
+        self,
+        user_id: uuid.UUID,
+        email: str,
+        password: str,
+        merchant_name: str
+    ) -> MerchantUser:
+        """Provision a new merchant and owner user in the Supabase PostgreSQL database."""
+        merchant_id = uuid.uuid4()
+        merchant = Merchant(
+            id=merchant_id,
+            name=merchant_name,
+            razorpay_key_id=settings.RAZORPAY_KEY_ID,
+            razorpay_key_secret_enc=encrypt_secret(settings.RAZORPAY_KEY_SECRET),
+            razorpay_webhook_secret_enc=encrypt_secret(settings.RAZORPAY_WEBHOOK_SECRET)
+        )
+        try:
+            merchant = await self.merchant_repo.add(merchant)
+        except Exception:
+            pass
+
+        user = MerchantUser(
+            id=user_id,
+            merchant_id=merchant.id if merchant else merchant_id,
+            email=email,
+            password_hash=get_password_hash(password),
+            role=UserRole.OWNER,
+            is_active=True
+        )
+        try:
+            user = await self.user_repo.add(user)
+            await self.session.commit()
+        except Exception:
+            pass
+        return user
+
     async def refresh_access_token(self, refresh_token: str) -> TokenResponse:
         """Rotate access token using valid refresh token."""
         try:
@@ -125,10 +197,11 @@ class AuthService:
             user_id = uuid.UUID(payload.get("sub"))
             merchant_id = uuid.UUID(payload.get("merchant_id"))
         except Exception:
+            # Fallback if refresh token decoding fails
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
 
         user = await self.get_user_by_id(user_id)
-        if not user or not user.is_active or user.merchant_id != merchant_id:
+        if not user or not user.is_active or str(user.merchant_id) != str(merchant_id):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User or merchant not active")
 
         new_access_token = create_access_token(subject=str(user.id), merchant_id=str(user.merchant_id))
@@ -176,3 +249,51 @@ class AuthService:
         except Exception:
             pass
         return user
+
+    async def register_user(self, payload: RegisterRequest) -> Tuple[TokenResponse, MerchantUser]:
+        """Register a new merchant account and user profile."""
+        try:
+            existing = await self.user_repo.get_by_email(payload.email)
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="User with this email already exists"
+                )
+        except HTTPException:
+            raise
+        except Exception:
+            pass
+
+        user_id = uuid.uuid4()
+        user = await self.provision_merchant_and_user(
+            user_id=user_id,
+            email=payload.email,
+            password=payload.password,
+            merchant_name=payload.merchant_name
+        )
+
+        access_token = create_access_token(
+            subject=str(user.id),
+            merchant_id=str(user.merchant_id)
+        )
+        refresh_token = create_refresh_token(
+            subject=str(user.id),
+            merchant_id=str(user.merchant_id)
+        )
+
+        user_info = UserResponse(
+            id=user.id,
+            merchant_id=user.merchant_id,
+            email=user.email,
+            role=user.role.value if hasattr(user.role, "value") else str(user.role),
+            is_active=user.is_active
+        )
+
+        token_response = TokenResponse(
+            access_token=access_token,
+            token_type="Bearer",
+            expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            refresh_token=refresh_token,
+            user=user_info
+        )
+        return token_response, user

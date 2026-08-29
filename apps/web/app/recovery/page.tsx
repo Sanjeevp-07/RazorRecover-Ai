@@ -6,6 +6,8 @@ import { fetchApi } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/context";
 import Link from "next/link";
 import { RefreshCw, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { TablePageSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { ShortIdBadge } from "@/components/ui/ShortIdBadge";
 
 interface CaseListResponse {
   items: any[];
@@ -29,8 +31,12 @@ export default function RecoveryQueuePage() {
       }
       return fetchApi<CaseListResponse>(endpoint, { method: "GET" }, token);
     },
-    refetchInterval: 4000,
+    refetchInterval: 6000,
   });
+
+  if (isLoading && !data) {
+    return <TablePageSkeleton title="Recovery Case Queue" subtitle="Lifecycle queue of AI recovery workflows" />;
+  }
 
   return (
     <div className="space-y-6">
@@ -88,8 +94,16 @@ export default function RecoveryQueuePage() {
               ) : data?.items && data.items.length > 0 ? (
                 data.items.map((c: any) => (
                   <tr key={c.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-4 font-mono text-indigo-300">{c.id.substring(0, 8)}...</td>
-                    <td className="p-4 font-mono text-slate-400">{c.payment_id.substring(0, 8)}...</td>
+                    <td className="p-4">
+                      <Link href={`/recovery/${c.id}`}>
+                        <ShortIdBadge id={c.id} prefix="case" />
+                      </Link>
+                    </td>
+                    <td className="p-4">
+                      <Link href={`/payments/${c.payment_id}`}>
+                        <ShortIdBadge id={c.payment_id} prefix="pay" />
+                      </Link>
+                    </td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
                         c.status === "RECOVERED"

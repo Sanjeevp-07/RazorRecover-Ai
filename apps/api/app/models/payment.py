@@ -6,6 +6,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.db import Base
 
+from app.models.failure_taxonomy import FailureClass
+
 class PaymentStatus(str, enum.Enum):
     CREATED = "created"
     ATTEMPTED = "attempted"
@@ -25,6 +27,7 @@ class Payment(Base):
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
     status: Mapped[PaymentStatus] = mapped_column(SQLEnum(PaymentStatus, name="payment_status_enum"), nullable=False)
     failure_reason: Mapped[str] = mapped_column(Text, nullable=True)
+    failure_class: Mapped[FailureClass] = mapped_column(SQLEnum(FailureClass, name="failure_class_enum"), default=FailureClass.UNKNOWN, nullable=True)
     method: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

@@ -16,6 +16,9 @@ import {
   RefreshCw
 } from "lucide-react";
 
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
+import { ShortIdBadge } from "@/components/ui/ShortIdBadge";
+
 interface DashboardSummary {
   failed_revenue_minor: number;
   recoverable_revenue_minor: number;
@@ -32,7 +35,7 @@ export default function DashboardPage() {
   const { data, isLoading, isError, error, refetch } = useQuery<DashboardSummary>({
     queryKey: ["dashboard-summary"],
     queryFn: () => fetchApi<DashboardSummary>("/dashboard/summary", { method: "GET" }, token),
-    refetchInterval: 5000, // 5s stale time for KPI metrics (§3 & §19)
+    refetchInterval: 8000,
   });
 
   const formatCurrency = (amountMinor: number = 0) => {
@@ -44,16 +47,7 @@ export default function DashboardPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-white tracking-tight">Recovery Dashboard</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-32 glass-card rounded-2xl animate-pulse bg-slate-800/40" />
-          ))}
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -150,8 +144,16 @@ export default function DashboardPage() {
               {data?.recent_cases && data.recent_cases.length > 0 ? (
                 data.recent_cases.map((c: any) => (
                   <tr key={c.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3.5 font-mono text-indigo-300">{c.id.substring(0, 8)}...</td>
-                    <td className="p-3.5 font-mono text-slate-400">{c.payment_id.substring(0, 8)}...</td>
+                    <td className="p-3.5">
+                      <Link href={`/recovery/${c.id}`}>
+                        <ShortIdBadge id={c.id} prefix="case" />
+                      </Link>
+                    </td>
+                    <td className="p-3.5">
+                      <Link href={`/payments/${c.payment_id}`}>
+                        <ShortIdBadge id={c.payment_id} prefix="pay" />
+                      </Link>
+                    </td>
                     <td className="p-3.5">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
                         c.status === "RECOVERED"

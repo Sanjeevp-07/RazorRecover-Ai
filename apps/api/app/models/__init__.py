@@ -13,6 +13,12 @@ from app.models.action_execution import ActionExecution, ActionExecutionStatus
 from app.models.approval import Approval, ApprovalStatus
 from app.models.audit_log import AuditLog
 from app.models.notification import Notification, NotificationChannel, NotificationStatus
+from app.models.failure_taxonomy import FailureClass, FailureTaxonomyMap
+from app.models.experiment_assignment import CohortType, ExperimentAssignment
+from app.models.ai_decision import AIDecision, ProbabilitySource
+from app.models.recovery_sequence import RecoverySequence, RecoverySequenceStep
+from app.models.backtest import BacktestRun, SimulatedActionExecution, BacktestStatus
+from app.models.communication_preference import CustomerCommunicationPreference
 
 __all__ = [
     "Merchant",
@@ -29,6 +35,7 @@ __all__ = [
     "RecoveryCaseStatus",
     "RiskSignal",
     "AIDecision",
+    "ProbabilitySource",
     "PolicyDecision",
     "PolicyOutcome",
     "PolicyConfig",
@@ -39,5 +46,15 @@ __all__ = [
     "AuditLog",
     "Notification",
     "NotificationChannel",
-    "NotificationStatus"
+    "NotificationStatus",
+    "FailureClass",
+    "FailureTaxonomyMap",
+    "CohortType",
+    "ExperimentAssignment",
+    "RecoverySequence",
+    "RecoverySequenceStep",
+    "BacktestRun",
+    "SimulatedActionExecution",
+    "BacktestStatus",
+    "CustomerCommunicationPreference"
 ]

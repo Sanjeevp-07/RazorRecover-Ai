@@ -6,6 +6,8 @@ import { fetchApi } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/context";
 import Link from "next/link";
 import { CheckSquare, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
+import { TablePageSkeleton } from "@/components/ui/Skeleton";
+import { ShortIdBadge } from "@/components/ui/ShortIdBadge";
 
 export default function ApprovalsPage() {
   const { token, user } = useAuth();
@@ -15,7 +17,7 @@ export default function ApprovalsPage() {
   const { data: approvals, isLoading } = useQuery<any[]>({
     queryKey: ["approvals-list"],
     queryFn: () => fetchApi<any>("/recovery-cases?status=PENDING_APPROVAL", { method: "GET" }, token).then(res => res.items || []),
-    refetchInterval: 4000,
+    refetchInterval: 6000,
   });
 
   const invalidateAll = () => {
@@ -39,6 +41,10 @@ export default function ApprovalsPage() {
   });
 
   const isOwner = user?.role?.toLowerCase() === "owner" || user?.role?.toLowerCase() === "admin";
+
+  if (isLoading && !approvals) {
+    return <TablePageSkeleton title="Pending Approvals Queue" subtitle="Cases escalated for human owner authorization (§15 & §19)" />;
+  }
 
   return (
     <div className="space-y-6">
@@ -76,12 +82,16 @@ export default function ApprovalsPage() {
               ) : approvals && approvals.length > 0 ? (
                 approvals.map((app: any) => (
                   <tr key={app.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-4 font-mono text-indigo-300">
-                      <Link href={`/recovery/${app.id}`} className="hover:underline">
-                        {app.id.substring(0, 8)}...
+                    <td className="p-4">
+                      <Link href={`/recovery/${app.id}`}>
+                        <ShortIdBadge id={app.id} prefix="case" />
                       </Link>
                     </td>
-                    <td className="p-4 font-mono text-slate-400">{app.payment_id.substring(0, 8)}...</td>
+                    <td className="p-4">
+                      <Link href={`/payments/${app.payment_id}`}>
+                        <ShortIdBadge id={app.payment_id} prefix="pay" />
+                      </Link>
+                    </td>
                     <td className="p-4 text-slate-400">{new Date(app.created_at).toLocaleString("en-IN")}</td>
                     <td className="p-4">
                       <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 w-fit">

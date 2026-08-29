@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "razorrecover_db"
     
+    # Supabase Project Credentials
+    SUPABASE_URL: str = "https://uiibmlpcsxhugvmxbyio.supabase.co"
+    SUPABASE_ANON_KEY: str = "sb_publishable_o5q8vLDMKPlCR1gffWt9gA_tSn897tt"
+    SUPABASE_PROJECT_REF: str = "uiibmlpcsxhugvmxbyio"
+    
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/razorrecover_db"
     SYNC_DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/razorrecover_db"
     

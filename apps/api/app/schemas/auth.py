@@ -8,6 +8,12 @@ class LoginRequest(BaseSchema):
     email: EmailStr
     password: str = Field(..., min_length=6, max_length=128)
 
+class RegisterRequest(BaseSchema):
+    """Payload for POST /api/v1/auth/register."""
+    merchant_name: str = Field(..., min_length=2, max_length=128)
+    email: EmailStr
+    password: str = Field(..., min_length=6, max_length=128)
+
 class RefreshRequest(BaseSchema):
     """Payload for POST /api/v1/auth/refresh."""
     refresh_token: str

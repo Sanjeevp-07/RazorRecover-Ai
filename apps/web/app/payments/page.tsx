@@ -6,6 +6,8 @@ import { fetchApi } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/context";
 import Link from "next/link";
 import { CreditCard, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { TablePageSkeleton } from "@/components/ui/Skeleton";
+import { ShortIdBadge } from "@/components/ui/ShortIdBadge";
 
 interface PaymentListResponse {
   items: any[];
@@ -29,15 +31,20 @@ export default function PaymentsPage() {
       }
       return fetchApi<PaymentListResponse>(endpoint, { method: "GET" }, token);
     },
-    refetchInterval: 4000,
+    refetchInterval: 6000,
   });
 
   const formatCurrency = (amountMinor: number = 0) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
+      maximumFractionDigits: 0,
     }).format(amountMinor / 100);
   };
+
+  if (isLoading && !data) {
+    return <TablePageSkeleton title="Payments Directory" subtitle="Ingested payment transactions and status history" columns={7} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -95,7 +102,11 @@ export default function PaymentsPage() {
               ) : data?.items && data.items.length > 0 ? (
                 data.items.map((p: any) => (
                   <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-4 font-mono text-indigo-300">{p.id.substring(0, 8)}...</td>
+                    <td className="p-4">
+                      <Link href={`/payments/${p.id}`}>
+                        <ShortIdBadge id={p.id} prefix="pay" />
+                      </Link>
+                    </td>
                     <td className="p-4 font-mono text-slate-400">{p.provider_payment_id || p.external_payment_id || "N/A"}</td>
                     <td className="p-4 font-semibold text-white">{formatCurrency(p.amount_minor)}</td>
                     <td className="p-4">

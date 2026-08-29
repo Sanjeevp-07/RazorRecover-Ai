@@ -9,11 +9,14 @@ from app.api.v1.payments import router as payments_router
 from app.api.v1.recovery_cases import router as cases_router
 from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.analytics import router as analytics_router
+from app.api.v1.backtests import router as backtests_router
+from app.api.v1.customers import router as customers_router
+from app.api.v1.system import router as system_router
 
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
-        version="2.0.0",
+        version="3.0.0",
         openapi_url=f"{settings.API_V1_STR}/openapi.json",
         docs_url="/docs",
         redoc_url="/redoc"
@@ -50,6 +53,9 @@ def create_app() -> FastAPI:
     app.include_router(cases_router, prefix=settings.API_V1_STR)
     app.include_router(dashboard_router, prefix=settings.API_V1_STR)
     app.include_router(analytics_router, prefix=settings.API_V1_STR)
+    app.include_router(backtests_router, prefix=settings.API_V1_STR)
+    app.include_router(customers_router, prefix=settings.API_V1_STR)
+    app.include_router(system_router, prefix=settings.API_V1_STR)
 
     @app.middleware("http")
     async def correlation_id_middleware(request: Request, call_next):

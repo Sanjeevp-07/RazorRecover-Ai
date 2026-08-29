@@ -75,30 +75,32 @@ async def analyze_recovery_case(
 @router.post("/{id}/approve", response_model=RecoveryCaseDetailResponse)
 async def approve_recovery_case(
     id: uuid.UUID,
+    approval_channel: Optional[str] = Query("DASHBOARD", description="Channel approving the case: DASHBOARD, WHATSAPP, SLACK"),
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
     current_user: MerchantUser = Depends(get_current_merchant_user),
     session: AsyncSession = Depends(get_db_session)
 ):
     """
-    POST /api/v1/recovery-cases/{id}/approve (§9.2 & §15).
-    Approve pending action for a case (Owner role only).
+    POST /api/v1/recovery-cases/{id}/approve (§9.2, §15, §33).
+    Approve pending action for a case (Owner role only). Accepts approval_channel.
     """
     service = RecoveryCaseService(session, current_user.merchant_id)
-    return await service.approve_case(id, current_user.id)
+    return await service.approve_case(id, current_user.id, approval_channel=approval_channel or "DASHBOARD")
 
 @router.post("/{id}/reject", response_model=RecoveryCaseDetailResponse)
 async def reject_recovery_case(
     id: uuid.UUID,
+    approval_channel: Optional[str] = Query("DASHBOARD", description="Channel rejecting the case: DASHBOARD, WHATSAPP, SLACK"),
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
     current_user: MerchantUser = Depends(get_current_merchant_user),
     session: AsyncSession = Depends(get_db_session)
 ):
     """
-    POST /api/v1/recovery-cases/{id}/reject (§9.2 & §15).
-    Reject pending action for a case (Owner role only).
+    POST /api/v1/recovery-cases/{id}/reject (§9.2, §15, §33).
+    Reject pending action for a case (Owner role only). Accepts approval_channel.
     """
     service = RecoveryCaseService(session, current_user.merchant_id)
-    return await service.reject_case(id, current_user.id)
+    return await service.reject_case(id, current_user.id, approval_channel=approval_channel or "DASHBOARD")
 
 @router.get("/{id}/timeline", response_model=List[AuditLogTimelineItem])
 async def get_recovery_case_timeline(

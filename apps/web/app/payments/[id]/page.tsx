@@ -6,6 +6,9 @@ import { useAuth } from "@/lib/auth/context";
 import Link from "next/link";
 import { ArrowLeft, CreditCard, ShieldCheck, Clock, ExternalLink } from "lucide-react";
 
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ShortIdBadge } from "@/components/ui/ShortIdBadge";
+
 export default function PaymentDetailPage({ params }: { params: { id: string } }) {
   const { token } = useAuth();
   const paymentId = params.id;
@@ -17,7 +20,19 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
   });
 
   if (isLoading) {
-    return <div className="p-8 text-slate-400">Loading payment details...</div>;
+    return (
+      <div className="space-y-6 max-w-5xl animate-fade-in">
+        <Skeleton className="h-4 w-32" />
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-60" />
+          <Skeleton className="h-7 w-24 rounded-full" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-72 w-full rounded-2xl" />
+          <Skeleton className="h-72 w-full rounded-2xl" />
+        </div>
+      </div>
+    );
   }
 
   if (!payment) {
@@ -44,7 +59,10 @@ export default function PaymentDetailPage({ params }: { params: { id: string } }
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white tracking-tight">Payment Details</h2>
-          <p className="font-mono text-xs text-indigo-400 mt-1">ID: {payment.id}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-xs text-slate-400">Payment ID:</span>
+            <ShortIdBadge id={payment.id} prefix="pay" />
+          </div>
         </div>
         <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase ${
           payment.status === "captured" || payment.status === "recovered"

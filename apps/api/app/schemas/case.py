@@ -9,6 +9,9 @@ class PaymentSummarySchema(BaseSchema):
     amount_minor: int
     currency: str
     status: str
+    failure_class: Optional[str] = "UNKNOWN"
+    failure_reason: Optional[str] = None
+    method: Optional[str] = None
 
 class RiskSignalsSummarySchema(BaseSchema):
     retry_count: int
@@ -21,11 +24,14 @@ class AIDecisionSummarySchema(BaseSchema):
     confidence: float
     requires_human: bool
     reason: str
+    probability_source: Optional[str] = "llm"
     schema_version: str
 
 class PolicyDecisionSummarySchema(BaseSchema):
     decision: str
     matched_rule: str
+    matched_rule_human: Optional[str] = None
+    policy_mode: Optional[str] = "sequential_threshold"
     policy_version: str
 
 class ApprovalSummarySchema(BaseSchema):
@@ -33,14 +39,16 @@ class ApprovalSummarySchema(BaseSchema):
     sla_expires_at: datetime
 
 class RecoveryCaseDetailResponse(BaseSchema):
-    """Full recovery case detail response schema (§9.2)."""
+    """Full recovery case detail response schema (§9.2 & §37)."""
     id: uuid.UUID
     status: RecoveryCaseStatus
+    expected_value_minor: Optional[int] = 0
     payment: PaymentSummarySchema
     risk_signals: Optional[RiskSignalsSummarySchema] = None
     ai_decision: Optional[AIDecisionSummarySchema] = None
     policy_decision: Optional[PolicyDecisionSummarySchema] = None
     approval: Optional[ApprovalSummarySchema] = None
+    explainability: Optional[Dict[str, Any]] = None
 
 class RecoveryCaseListItemResponse(BaseSchema):
     """Paginated case list item response."""

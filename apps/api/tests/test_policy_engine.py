@@ -105,7 +105,7 @@ def test_policy_rule_7_risk_threshold_human_approval():
     assert res.matched_rule == "risk_threshold"
 
 def test_policy_rule_8_default_allow():
-    """Rule 8: All checks pass -> ALLOW (default_allow)."""
+    """Rule 9: All checks pass -> ALLOW (default_allow)."""
     ctx = PolicyEvaluationContext(
         payment_status="failed",
         case_status="ANALYZING",
@@ -117,3 +117,67 @@ def test_policy_rule_8_default_allow():
     res = evaluate_policy(ctx)
     assert res.decision == PolicyOutcome.ALLOW
     assert res.matched_rule == "default_allow"
+
+def test_policy_rule_4_velocity_abuse_denied():
+    """Rule 4: velocity_flag == True -> DENY (velocity_abuse_suspected)."""
+    ctx = PolicyEvaluationContext(
+        payment_status="failed",
+        case_status="ANALYZING",
+        velocity_flag=True,
+        recommended_action="CREATE_PAYMENT_LINK",
+        payment_amount_minor=1000,
+        ai_confidence=0.95,
+        ai_requires_human=False
+    )
+    res = evaluate_policy(ctx)
+    assert res.decision == PolicyOutcome.DENY
+    assert res.matched_rule == "velocity_abuse_suspected"
+
+def test_policy_risk_matrix_high_value_high_confidence_allowed():
+    """Risk Matrix Mode: High amount + high confidence -> ALLOW (risk_matrix_high_value_high_confidence)."""
+    ctx = PolicyEvaluationContext(
+        payment_status="failed",
+        case_status="ANALYZING",
+        policy_mode="risk_matrix",
+        recommended_action="CREATE_PAYMENT_LINK",
+        payment_amount_minor=8000000,  # ₹80,000 > ₹50,000 threshold
+        approval_amount_threshold_minor=5000000,
+        ai_confidence=0.92,
+        ai_requires_human=False
+    )
+    res = evaluate_policy(ctx)
+    assert res.decision == PolicyOutcome.ALLOW
+    assert res.matched_rule == "risk_matrix_high_value_high_confidence"
+
+def test_policy_risk_matrix_high_value_low_confidence_requires_review():
+    """Risk Matrix Mode: High amount + low confidence -> HUMAN_APPROVAL."""
+    ctx = PolicyEvaluationContext(
+        payment_status="failed",
+        case_status="ANALYZING",
+        policy_mode="risk_matrix",
+        recommended_action="CREATE_PAYMENT_LINK",
+        payment_amount_minor=8000000,
+        approval_amount_threshold_minor=5000000,
+        ai_confidence=0.60,  # Moderate/low confidence
+        ai_requires_human=False
+    )
+    res = evaluate_policy(ctx)
+    assert res.decision == PolicyOutcome.HUMAN_APPROVAL
+    assert res.matched_rule == "risk_matrix_high_value_review"
+
+def test_policy_risk_matrix_normal_value_allowed():
+    """Risk Matrix Mode: Normal amount + normal confidence -> ALLOW."""
+    ctx = PolicyEvaluationContext(
+        payment_status="failed",
+        case_status="ANALYZING",
+        policy_mode="risk_matrix",
+        recommended_action="CREATE_PAYMENT_LINK",
+        payment_amount_minor=200000,
+        approval_amount_threshold_minor=5000000,
+        ai_confidence=0.70,
+        ai_requires_human=False
+    )
+    res = evaluate_policy(ctx)
+    assert res.decision == PolicyOutcome.ALLOW
+    assert res.matched_rule == "risk_matrix_allow"
+
