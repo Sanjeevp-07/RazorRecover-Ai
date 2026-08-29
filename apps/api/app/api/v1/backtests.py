@@ -23,7 +23,8 @@ async def create_backtest_simulation(
     service = BacktestService(session, current_user.merchant_id)
     return await service.run_backtest_simulation(
         historical_records=req.dataset,
-        parameters=req.parameters
+        parameters=req.parameters,
+        dataset_size=req.dataset_size or 1000
     )
 
 @router.get("/{backtest_id}", response_model=BacktestResultResponse)

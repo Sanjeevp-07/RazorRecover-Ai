@@ -5,7 +5,8 @@ from app.schemas.base import BaseSchema
 
 class BacktestCreateRequest(BaseSchema):
     """Payload to trigger historical simulation replay (§34)."""
-    dataset: List[Dict[str, Any]]
+    dataset: Optional[List[Dict[str, Any]]] = None
+    dataset_size: Optional[int] = 1000
     parameters: Optional[Dict[str, Any]] = None
 
 class BacktestResultResponse(BaseSchema):

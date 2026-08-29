@@ -68,11 +68,12 @@ class AuthService:
 
     async def authenticate_user(self, payload: LoginRequest) -> Tuple[TokenResponse, MerchantUser]:
         """Authenticate user credentials against Supabase Auth & DB repository."""
-        supabase_auth_result = await self._authenticate_with_supabase(payload.email, payload.password)
+        clean_email = payload.email.strip().lower()
+        supabase_auth_result = await self._authenticate_with_supabase(clean_email, payload.password)
         
         user = None
         try:
-            user = await self.user_repo.get_by_email(payload.email)
+            user = await self.user_repo.get_by_email(clean_email)
         except Exception:
             user = None
 
@@ -80,20 +81,20 @@ class AuthService:
             # User authenticated via Supabase; provision local DB merchant & user profile
             sp_user = supabase_auth_result.get("user", {})
             user_id = uuid.UUID(sp_user.get("id")) if sp_user.get("id") else uuid.uuid4()
-            merchant_name = sp_user.get("user_metadata", {}).get("merchant_name", f"{payload.email.split('@')[0]} Enterprise")
+            merchant_name = sp_user.get("user_metadata", {}).get("merchant_name", f"{clean_email.split('@')[0]} Enterprise")
             
             user = await self.provision_merchant_and_user(
                 user_id=user_id,
-                email=payload.email,
+                email=clean_email,
                 password=payload.password,
                 merchant_name=merchant_name
             )
 
         # Fallback seeding for demo credentials
-        if not user and payload.email == "owner@merchant.com" and payload.password == "password123":
+        if not user and clean_email == "owner@merchant.com" and payload.password == "password123":
             try:
                 user = await self.create_demo_merchant_owner_if_not_exists(
-                    email=payload.email,
+                    email=clean_email,
                     password=payload.password,
                     merchant_name="Demo Merchant Enterprise"
                 )
@@ -158,7 +159,17 @@ class AuthService:
         password: str,
         merchant_name: str
     ) -> MerchantUser:
-        """Provision a new merchant and owner user in the Supabase PostgreSQL database."""
+        """Provision a new merchant and owner user in the database."""
+        clean_email = email.strip().lower()
+
+        # Check if user already exists
+        existing = await self.user_repo.get_by_email(clean_email)
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User with this email already exists"
+            )
+
         merchant_id = uuid.uuid4()
         merchant = Merchant(
             id=merchant_id,
@@ -170,12 +181,13 @@ class AuthService:
         try:
             merchant = await self.merchant_repo.add(merchant)
         except Exception:
-            pass
+            await self.session.rollback()
+            merchant = None
 
         user = MerchantUser(
             id=user_id,
             merchant_id=merchant.id if merchant else merchant_id,
-            email=email,
+            email=clean_email,
             password_hash=get_password_hash(password),
             role=UserRole.OWNER,
             is_active=True
@@ -183,8 +195,12 @@ class AuthService:
         try:
             user = await self.user_repo.add(user)
             await self.session.commit()
-        except Exception:
-            pass
+        except Exception as exc:
+            await self.session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User with this email already exists"
+            )
         return user
 
     async def refresh_access_token(self, refresh_token: str) -> TokenResponse:
@@ -216,8 +232,9 @@ class AuthService:
 
     async def create_demo_merchant_owner_if_not_exists(self, email: str, password: str, merchant_name: str) -> MerchantUser:
         """Helper for seeding demo merchant owner user."""
+        clean_email = email.strip().lower()
         try:
-            existing_user = await self.user_repo.get_by_email(email)
+            existing_user = await self.user_repo.get_by_email(clean_email)
             if existing_user:
                 return existing_user
         except Exception:
@@ -238,7 +255,7 @@ class AuthService:
         user = MerchantUser(
             id=DEMO_USER_ID,
             merchant_id=merchant.id if merchant else DEMO_MERCHANT_ID,
-            email=email,
+            email=clean_email,
             password_hash=get_password_hash(password),
             role=UserRole.OWNER,
             is_active=True
@@ -252,22 +269,19 @@ class AuthService:
 
     async def register_user(self, payload: RegisterRequest) -> Tuple[TokenResponse, MerchantUser]:
         """Register a new merchant account and user profile."""
-        try:
-            existing = await self.user_repo.get_by_email(payload.email)
-            if existing:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="User with this email already exists"
-                )
-        except HTTPException:
-            raise
-        except Exception:
-            pass
+        clean_email = payload.email.strip().lower()
+
+        existing = await self.user_repo.get_by_email(clean_email)
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User with this email already exists"
+            )
 
         user_id = uuid.uuid4()
         user = await self.provision_merchant_and_user(
             user_id=user_id,
-            email=payload.email,
+            email=clean_email,
             password=payload.password,
             merchant_name=payload.merchant_name
         )

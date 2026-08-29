@@ -140,56 +140,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    let accessToken: string | null = null;
-    let userInfo: User | null = null;
 
-    // 1. Try Supabase Auth first
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (data?.session && !error) {
-        accessToken = data.session.access_token;
-        if (data.session.refresh_token) {
-          localStorage.setItem("refresh_token", data.session.refresh_token);
-        }
-      }
-    } catch {
-      // Supabase Auth fallback
-    }
-
-    // 2. Fallback or Sync with Backend API
     try {
       const res = await fetchApi<{ access_token: string; refresh_token?: string; user?: User }>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
 
-      if (!accessToken) {
-        accessToken = res.access_token;
+      if (res.access_token) {
+        localStorage.setItem("access_token", res.access_token);
+        setToken(res.access_token);
       }
       if (res.refresh_token) {
         localStorage.setItem("refresh_token", res.refresh_token);
       }
       if (res.user) {
-        userInfo = res.user;
+        localStorage.setItem("user_info", JSON.stringify(res.user));
+        setUser(res.user);
+      } else if (res.access_token) {
+        await fetchUserInfo(res.access_token);
+      }
+
+      // Optional background sync with Supabase Auth
+      try {
+        await supabase.auth.signInWithPassword({ email, password });
+      } catch {
+        // ignore
       }
     } catch (err) {
-      if (!accessToken) {
-        setIsLoading(false);
-        throw err;
-      }
-    }
-
-    if (accessToken) {
-      localStorage.setItem("access_token", accessToken);
-      setToken(accessToken);
-
-      if (userInfo) {
-        localStorage.setItem("user_info", JSON.stringify(userInfo));
-        setUser(userInfo);
-        setIsLoading(false);
-      } else {
-        await fetchUserInfo(accessToken);
-      }
+      setIsLoading(false);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -215,43 +197,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (merchantName: string, email: string, password: string) => {
     setIsLoading(true);
-    let accessToken: string | null = null;
 
-    // 1. Sign up with Supabase Auth
+    let res: { access_token: string; refresh_token?: string; user?: User };
     try {
-      const { data } = await supabase.auth.signUp({
+      res = await fetchApi<{ access_token: string; refresh_token?: string; user?: User }>("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ merchant_name: merchantName, email, password }),
+      });
+    } catch (err) {
+      setIsLoading(false);
+      throw err;
+    }
+
+    // Optional background sync with Supabase Auth
+    try {
+      await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { merchant_name: merchantName }
         }
       });
-      if (data?.session) {
-        accessToken = data.session.access_token;
-      }
     } catch {
-      // Supabase auth fallback
+      // ignore
     }
 
-    // 2. Register with Backend API
-    try {
-      const res = await fetchApi<{ access_token: string; refresh_token?: string; user?: User }>("/auth/register", {
-        method: "POST",
-        body: JSON.stringify({ merchant_name: merchantName, email, password }),
-      });
-
-      if (!accessToken) {
-        accessToken = res.access_token;
-      }
-      if (res.user) {
-        setUser(res.user);
-        localStorage.setItem("user_info", JSON.stringify(res.user));
-      }
-    } catch (err) {
-      if (!accessToken) {
-        setIsLoading(false);
-        throw err;
-      }
+    const accessToken = res.access_token;
+    if (res.refresh_token) {
+      localStorage.setItem("refresh_token", res.refresh_token);
+    }
+    if (res.user) {
+      setUser(res.user);
+      localStorage.setItem("user_info", JSON.stringify(res.user));
     }
 
     if (accessToken) {

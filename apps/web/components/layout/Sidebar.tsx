@@ -9,13 +9,15 @@ import {
   CheckSquare, 
   TrendingUp, 
   Settings,
-  ShieldCheck
+  ShieldCheck,
+  Cpu
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/payments", label: "Payments", icon: CreditCard },
   { href: "/recovery", label: "Recovery Queue", icon: RefreshCw },
+  { href: "/simulation", label: "AI Simulator", icon: Cpu },
   { href: "/approvals", label: "Approvals", icon: CheckSquare },
   { href: "/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/settings", label: "Settings", icon: Settings },

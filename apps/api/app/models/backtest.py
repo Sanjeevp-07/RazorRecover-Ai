@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 import enum
-from sqlalchemy import Text, Integer, Float, DateTime, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Text, Integer, Float, DateTime, ForeignKey, Enum as SQLEnum, JSON
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.db import Base
@@ -24,8 +24,8 @@ class BacktestRun(Base):
     simulated_recovered_revenue_minor: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     simulated_recovery_rate: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     projected_roi_multiplier: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
-    parameters: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
-    summary_report: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    parameters: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"), default=dict, nullable=False)
+    summary_report: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"), default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 

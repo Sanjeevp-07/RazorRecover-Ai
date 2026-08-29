@@ -1,8 +1,10 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.db import init_db
 from app.api.v1.auth import router as auth_router
 from app.api.v1.webhooks import router as webhooks_router
 from app.api.v1.payments import router as payments_router
@@ -13,13 +15,19 @@ from app.api.v1.backtests import router as backtests_router
 from app.api.v1.customers import router as customers_router
 from app.api.v1.system import router as system_router
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
         version="3.0.0",
         openapi_url=f"{settings.API_V1_STR}/openapi.json",
         docs_url="/docs",
-        redoc_url="/redoc"
+        redoc_url="/redoc",
+        lifespan=lifespan
     )
 
     # Configure CORS with explicit allowed origins & regex

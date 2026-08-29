@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Text, Integer, DateTime, ForeignKey, Boolean
+from sqlalchemy import Text, Integer, DateTime, ForeignKey, Boolean, JSON
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.db import Base
@@ -27,5 +27,5 @@ class RecoverySequenceStep(Base):
     day_offset: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     channel: Mapped[str] = mapped_column(Text, default="WHATSAPP", nullable=False)
     template_name: Mapped[str] = mapped_column(Text, nullable=False)
-    conditions: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    conditions: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"), default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
