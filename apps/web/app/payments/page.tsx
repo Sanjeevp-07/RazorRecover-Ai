@@ -23,7 +23,7 @@ export default function PaymentsPage() {
   const pageSize = 20;
 
   const { data, isLoading } = useQuery<PaymentListResponse>({
-    queryKey: ["payments-list", statusFilter, page],
+    queryKey: ["payments-list", token, statusFilter, page],
     queryFn: () => {
       let endpoint = `/payments?page=${page}&page_size=${pageSize}`;
       if (statusFilter) {
@@ -31,7 +31,10 @@ export default function PaymentsPage() {
       }
       return fetchApi<PaymentListResponse>(endpoint, { method: "GET" }, token);
     },
-    refetchInterval: 6000,
+    refetchInterval: 4000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    enabled: !!token,
   });
 
   const formatCurrency = (amountMinor: number = 0) => {

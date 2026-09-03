@@ -9,10 +9,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30000, // 30s stale time for instant cached navigation
+            staleTime: 0, // Real-time: always fresh on navigation
             gcTime: 10 * 60 * 1000, // 10 minutes memory retention
-            refetchOnWindowFocus: false,
-            refetchOnMount: false,
+            refetchOnWindowFocus: true, // Auto-update when returning to tab
+            refetchOnMount: true, // Auto-update every time page is visited
             retry: 1,
           },
         },

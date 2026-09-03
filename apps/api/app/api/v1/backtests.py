@@ -27,6 +27,21 @@ async def create_backtest_simulation(
         dataset_size=req.dataset_size or 1000
     )
 
+@router.get("/latest", response_model=BacktestResultResponse)
+async def get_latest_backtest_result(
+    current_user: MerchantUser = Depends(get_current_merchant_user),
+    session: AsyncSession = Depends(get_db_session)
+):
+    """
+    GET /api/v1/backtests/latest
+    Retrieve the most recent backtest simulation run results for this merchant.
+    """
+    service = BacktestService(session, current_user.merchant_id)
+    run = await service.get_latest_backtest()
+    if not run:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No backtest runs found")
+    return run
+
 @router.get("/{backtest_id}", response_model=BacktestResultResponse)
 async def get_backtest_result(
     backtest_id: uuid.UUID,

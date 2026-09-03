@@ -7,8 +7,8 @@ import { useAuth } from "@/lib/auth/context";
 import { ShieldCheck, Lock, Mail, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("owner@merchant.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-800 font-medium focus:outline-none focus:border-blue-500"
-                placeholder="owner@merchant.com"
+                placeholder="name@company.com"
               />
             </div>
           </div>

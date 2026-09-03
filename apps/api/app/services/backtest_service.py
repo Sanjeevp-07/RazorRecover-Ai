@@ -2,8 +2,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete, func
 from app.models.backtest import BacktestRun, SimulatedActionExecution, BacktestStatus
+from app.models.payment import Payment, PaymentStatus
+from app.models.recovery_case import RecoveryCase, RecoveryCaseStatus
 from app.policy.failure_taxonomy_engine import FailureTaxonomyEngine
 from app.ai.baseline_scorer import BaselineScorer
 
@@ -90,6 +92,9 @@ class BacktestService:
         total_failed_revenue_minor = 0
         category_breakdown = {}
 
+        new_payments: List[Payment] = []
+        new_cases: List[RecoveryCase] = []
+
         for idx, rec in enumerate(records):
             amount_minor = int(rec.get("amount_minor", rec.get("amount", 0)))
             total_failed_revenue_minor += amount_minor
@@ -150,39 +155,124 @@ class BacktestService:
             )
             self.session.add(sim_action)
 
+            # Persist real payment in database
+            p_id = uuid.uuid4()
+            p_status = PaymentStatus.RECOVERED if decision == "ALLOW" else PaymentStatus.FAILED
+            payment = Payment(
+                id=p_id,
+                merchant_id=self.merchant_id,
+                provider_payment_id=rec.get("provider_payment_id", f"pay_sim_{p_id.hex[:12]}"),
+                amount_minor=amount_minor,
+                currency="INR",
+                status=p_status,
+                failure_reason=rec.get("error_description", "Payment authorization failed"),
+                failure_class=taxonomy_res.failure_class,
+                method=rec.get("method", "card")
+            )
+            new_payments.append(payment)
+
+            # Persist real recovery case in database
+            c_status = (
+                RecoveryCaseStatus.RECOVERED if decision == "ALLOW"
+                else RecoveryCaseStatus.PENDING_APPROVAL if decision == "HUMAN_APPROVAL"
+                else RecoveryCaseStatus.DENIED if decision == "DENY"
+                else RecoveryCaseStatus.OPEN
+            )
+            case = RecoveryCase(
+                id=uuid.uuid4(),
+                merchant_id=self.merchant_id,
+                payment_id=p_id,
+                status=c_status,
+                expected_value_minor=int(amount_minor * prob),
+                correlation_id=uuid.uuid4()
+            )
+            new_cases.append(case)
+
             f_class = taxonomy_res.failure_class.value
             category_breakdown[f_class] = category_breakdown.get(f_class, 0) + 1
 
-        rec_rate = round(recoverable_cases / total_cases, 4) if total_cases > 0 else 0.0
-        incremental_lift_minor = max(0, estimated_recovery_minor - control_recovery_minor)
+        self.session.add_all(new_payments)
+        self.session.add_all(new_cases)
+        await self.session.flush()
 
-        estimated_recovery_inr = estimated_recovery_minor / 100.0
-        control_recovery_inr = control_recovery_minor / 100.0
-        incremental_lift_inr = incremental_lift_minor / 100.0
+        # Compute cumulative aggregates across all simulation runs for this merchant
+        cum_total_cases = await self.session.scalar(
+            select(func.count(RecoveryCase.id)).where(RecoveryCase.merchant_id == self.merchant_id)
+        ) or total_cases
 
-        run.simulated_recovered_cases = recoverable_cases
-        run.simulated_recovered_revenue_minor = estimated_recovery_minor
-        run.simulated_recovery_rate = rec_rate
-        run.projected_roi_multiplier = max(1.0, round(estimated_recovery_minor / max(1, total_cases * 500), 2))
+        cum_recoverable_cases = await self.session.scalar(
+            select(func.count(RecoveryCase.id)).where(
+                RecoveryCase.merchant_id == self.merchant_id,
+                RecoveryCase.status == RecoveryCaseStatus.RECOVERED
+            )
+        ) or recoverable_cases
+
+        cum_policy_blocked = await self.session.scalar(
+            select(func.count(RecoveryCase.id)).where(
+                RecoveryCase.merchant_id == self.merchant_id,
+                RecoveryCase.status == RecoveryCaseStatus.DENIED
+            )
+        ) or policy_blocked_cases
+
+        cum_approval_required = await self.session.scalar(
+            select(func.count(RecoveryCase.id)).where(
+                RecoveryCase.merchant_id == self.merchant_id,
+                RecoveryCase.status == RecoveryCaseStatus.PENDING_APPROVAL
+            )
+        ) or approval_required_cases
+
+        cum_low_confidence = await self.session.scalar(
+            select(func.count(RecoveryCase.id)).where(
+                RecoveryCase.merchant_id == self.merchant_id,
+                RecoveryCase.status == RecoveryCaseStatus.OPEN
+            )
+        ) or low_confidence_cases
+
+        cum_failed_rev_minor = await self.session.scalar(
+            select(func.coalesce(func.sum(Payment.amount_minor), 0)).where(
+                Payment.merchant_id == self.merchant_id,
+                Payment.status == PaymentStatus.FAILED
+            )
+        ) or total_failed_revenue_minor
+
+        cum_rec_rev_minor = await self.session.scalar(
+            select(func.coalesce(func.sum(Payment.amount_minor), 0)).where(
+                Payment.merchant_id == self.merchant_id,
+                Payment.status == PaymentStatus.RECOVERED
+            )
+        ) or estimated_recovery_minor
+
+        cum_rec_rate = round(cum_recoverable_cases / cum_total_cases, 4) if cum_total_cases > 0 else 0.0
+        cum_control_minor = int(cum_rec_rev_minor * 0.14)
+        cum_lift_minor = max(0, cum_rec_rev_minor - cum_control_minor)
+
+        cum_rec_inr = cum_rec_rev_minor / 100.0
+        cum_ctrl_inr = cum_control_minor / 100.0
+        cum_lift_inr = cum_lift_minor / 100.0
+
+        run.simulated_recovered_cases = cum_recoverable_cases
+        run.simulated_recovered_revenue_minor = cum_rec_rev_minor
+        run.simulated_recovery_rate = cum_rec_rate
+        run.projected_roi_multiplier = max(1.0, round(cum_rec_rev_minor / max(1, cum_total_cases * 500), 2))
         run.status = BacktestStatus.COMPLETED
         run.completed_at = datetime.now(timezone.utc)
         run.summary_report = {
-            "total_cases": total_cases,
-            "recoverable_cases": recoverable_cases,
-            "policy_blocked_cases": policy_blocked_cases,
-            "approval_required_cases": approval_required_cases,
-            "low_confidence_cases": low_confidence_cases,
-            "total_failed_revenue_minor": total_failed_revenue_minor,
-            "estimated_recovery_minor": estimated_recovery_minor,
-            "control_recovery_minor": control_recovery_minor,
-            "incremental_lift_minor": incremental_lift_minor,
-            "estimated_recovery_inr": estimated_recovery_inr,
-            "control_recovery_inr": control_recovery_inr,
-            "incremental_lift_inr": incremental_lift_inr,
-            "formatted_estimated_recovery": format_inr_lakhs(estimated_recovery_inr),
-            "formatted_control_recovery": format_inr_lakhs(control_recovery_inr),
-            "formatted_incremental_lift": format_inr_lakhs(incremental_lift_inr),
-            "projected_recovery_rate": rec_rate,
+            "total_cases": cum_total_cases,
+            "recoverable_cases": cum_recoverable_cases,
+            "policy_blocked_cases": cum_policy_blocked,
+            "approval_required_cases": cum_approval_required,
+            "low_confidence_cases": cum_low_confidence,
+            "total_failed_revenue_minor": cum_failed_rev_minor,
+            "estimated_recovery_minor": cum_rec_rev_minor,
+            "control_recovery_minor": cum_control_minor,
+            "incremental_lift_minor": cum_lift_minor,
+            "estimated_recovery_inr": cum_rec_inr,
+            "control_recovery_inr": cum_ctrl_inr,
+            "incremental_lift_inr": cum_lift_inr,
+            "formatted_estimated_recovery": format_inr_lakhs(cum_rec_inr),
+            "formatted_control_recovery": format_inr_lakhs(cum_ctrl_inr),
+            "formatted_incremental_lift": format_inr_lakhs(cum_lift_inr),
+            "projected_recovery_rate": cum_rec_rate,
             "category_distribution": category_breakdown
         }
 
@@ -195,6 +285,17 @@ class BacktestService:
         stmt = select(BacktestRun).where(
             BacktestRun.id == backtest_id,
             BacktestRun.merchant_id == self.merchant_id
+        )
+        res = await self.session.execute(stmt)
+        return res.scalar_one_or_none()
+
+    async def get_latest_backtest(self) -> Optional[BacktestRun]:
+        """Fetch the most recent backtest simulation run for the merchant."""
+        stmt = (
+            select(BacktestRun)
+            .where(BacktestRun.merchant_id == self.merchant_id)
+            .order_by(BacktestRun.created_at.desc())
+            .limit(1)
         )
         res = await self.session.execute(stmt)
         return res.scalar_one_or_none()

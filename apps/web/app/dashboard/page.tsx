@@ -35,9 +35,13 @@ export default function DashboardPage() {
   const { token } = useAuth();
 
   const { data, isLoading, isError, error, refetch } = useQuery<DashboardSummary>({
-    queryKey: ["dashboard-summary"],
+    queryKey: ["dashboard-summary", token],
     queryFn: () => fetchApi<DashboardSummary>("/dashboard/summary", { method: "GET" }, token),
-    refetchInterval: 8000,
+    refetchInterval: 3000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+    enabled: !!token,
   });
 
   const formatCurrency = (amountMinor: number = 0) => {

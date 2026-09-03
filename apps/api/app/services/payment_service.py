@@ -94,10 +94,13 @@ class PaymentService:
                     ) for p in payments
                 ]
                 return items, total
+            elif self.merchant_id != DEMO_MERCHANT_ID:
+                return [], 0
         except Exception:
-            pass
+            if self.merchant_id != DEMO_MERCHANT_ID:
+                return [], 0
 
-        # Demo fallback
+        # Demo fallback (only for default demo merchant)
         filtered = DEMO_PAYMENTS_DATA
         if status_filter:
             filtered = [p for p in DEMO_PAYMENTS_DATA if p["status"] == status_filter]
