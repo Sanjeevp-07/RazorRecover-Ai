@@ -30,7 +30,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan
     )
 
-    # Configure CORS with explicit allowed origins & regex
+    # Configure CORS with explicit allowed origins & regex (supporting local & Vercel deployments)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
@@ -41,7 +41,7 @@ def create_app() -> FastAPI:
             "http://localhost:3001",
             "http://127.0.0.1:3001",
         ],
-        allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:[0-9]+)?",
+        allow_origin_regex=r"https?://.*",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
