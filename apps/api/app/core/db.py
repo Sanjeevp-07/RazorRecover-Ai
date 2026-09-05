@@ -4,9 +4,12 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
+from pathlib import Path
 from app.core.config import settings
 
 logger = logging.getLogger("razorrecover.db")
+
+_DB_PATH = (Path(__file__).resolve().parent.parent.parent / "razorrecover.db").as_posix()
 
 class Base(DeclarativeBase):
     """Base ORM model class."""
@@ -14,7 +17,7 @@ class Base(DeclarativeBase):
 
 # Sync Engine & Session Factory for synchronous scripts / Celery workers
 sync_engine = create_engine(
-    settings.SYNC_DATABASE_URL if not settings.SYNC_DATABASE_URL.startswith("sqlite") else "sqlite:///./razorrecover.db",
+    settings.SYNC_DATABASE_URL if not settings.SYNC_DATABASE_URL.startswith("sqlite") else f"sqlite:///{_DB_PATH}",
     echo=False,
     pool_pre_ping=True,
     connect_args={"connect_timeout": 1} if "postgresql" in settings.SYNC_DATABASE_URL else {}
@@ -59,7 +62,7 @@ async def init_db():
         logger.info("Database initialized successfully.")
     except Exception as exc:
         logger.warning(f"Failed to connect to primary DB ({settings.DATABASE_URL}): {exc}. Falling back to SQLite.")
-        sqlite_url = "sqlite+aiosqlite:///./razorrecover.db"
+        sqlite_url = f"sqlite+aiosqlite:///{_DB_PATH}"
         async_engine, AsyncSessionLocal = get_engine_and_factory(sqlite_url)
         async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)

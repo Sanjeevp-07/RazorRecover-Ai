@@ -223,10 +223,9 @@ class RecoveryOrchestrator:
                 # Causal Lift Execution Gate (§29)
                 control_enabled = configs.get("control_group_enabled", "false").lower() in ("true", "1", "yes")
                 control_pct = float(configs.get("control_group_pct", 0.05))
-                control_max_amount = int(configs.get("control_group_max_amount_minor", amount_threshold // 2))
 
                 is_control = False
-                if control_enabled and payment.amount_minor <= control_max_amount:
+                if control_enabled:
                     import random
                     if random.random() < control_pct:
                         is_control = True
@@ -235,7 +234,7 @@ class RecoveryOrchestrator:
                 exp_assignment = ExperimentAssignment(
                     case_id=case.id,
                     cohort=cohort,
-                    eligibility_reason="Auto-executed ALLOW under control cap" if is_control else "Standard treatment execution"
+                    eligibility_reason="Holdout control cohort assignment" if is_control else "Standard treatment execution"
                 )
                 self.session.add(exp_assignment)
                 await self.session.flush()

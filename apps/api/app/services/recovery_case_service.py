@@ -532,10 +532,10 @@ class RecoveryCaseService:
             ) or 0
 
             if total_cases > 0:
-                failed_revenue = await self.session.scalar(
+                total_failed_revenue = await self.session.scalar(
                     select(func.coalesce(func.sum(Payment.amount_minor), 0)).where(
                         Payment.merchant_id == self.merchant_id,
-                        Payment.status == PaymentStatus.FAILED
+                        Payment.status.in_([PaymentStatus.FAILED, PaymentStatus.RECOVERED])
                     )
                 ) or 0
                 recovered_revenue = await self.session.scalar(
@@ -544,8 +544,22 @@ class RecoveryCaseService:
                         Payment.status == PaymentStatus.RECOVERED
                     )
                 ) or 0
-                recoverable_revenue = failed_revenue + recovered_revenue
-                recovery_rate = (recovered_revenue / recoverable_revenue) if recoverable_revenue > 0 else 0.0
+                denied_revenue = await self.session.scalar(
+                    select(func.coalesce(func.sum(Payment.amount_minor), 0))
+                    .join(RecoveryCase, Payment.id == RecoveryCase.payment_id)
+                    .where(
+                        Payment.merchant_id == self.merchant_id,
+                        RecoveryCase.status == RecoveryCaseStatus.DENIED
+                    )
+                ) or 0
+                recoverable_revenue = max(recovered_revenue, total_failed_revenue - denied_revenue)
+                recovered_cases = await self.session.scalar(
+                    select(func.count(RecoveryCase.id)).where(
+                        RecoveryCase.merchant_id == self.merchant_id,
+                        RecoveryCase.status == RecoveryCaseStatus.RECOVERED
+                    )
+                ) or 0
+                recovery_rate = (recovered_cases / total_cases) if total_cases > 0 else 0.0
 
                 pending_cases = await self.session.scalar(
                     select(func.count(RecoveryCase.id)).where(
@@ -574,7 +588,7 @@ class RecoveryCaseService:
                 ]
 
                 return DashboardSummaryResponse(
-                    failed_revenue_minor=failed_revenue,
+                    failed_revenue_minor=total_failed_revenue,
                     recoverable_revenue_minor=recoverable_revenue,
                     recovered_revenue_minor=recovered_revenue,
                     recovery_rate=round(recovery_rate, 4),
@@ -618,13 +632,15 @@ class RecoveryCaseService:
             ) for c in all_cases[:5]
         ]
 
-        failed_revenue = sum(c["amount_minor"] for c in all_cases if c["status"] != RecoveryCaseStatus.RECOVERED)
+        total_failed_revenue = sum(c["amount_minor"] for c in all_cases)
         recovered_revenue = sum(c["amount_minor"] for c in all_cases if c["status"] == RecoveryCaseStatus.RECOVERED)
-        recoverable_revenue = failed_revenue + recovered_revenue
-        recovery_rate = (recovered_revenue / recoverable_revenue) if recoverable_revenue > 0 else 0.0
+        denied_revenue = sum(c["amount_minor"] for c in all_cases if c["status"] == RecoveryCaseStatus.DENIED)
+        recovered_cases = sum(1 for c in all_cases if c["status"] == RecoveryCaseStatus.RECOVERED)
+        recoverable_revenue = max(recovered_revenue, total_failed_revenue - denied_revenue)
+        recovery_rate = (recovered_cases / len(all_cases)) if len(all_cases) > 0 else 0.0
 
         return DashboardSummaryResponse(
-            failed_revenue_minor=failed_revenue,
+            failed_revenue_minor=total_failed_revenue,
             recoverable_revenue_minor=recoverable_revenue,
             recovered_revenue_minor=recovered_revenue,
             recovery_rate=round(recovery_rate, 4),
@@ -677,10 +693,10 @@ class RecoveryCaseService:
                     )
                 ) or 0
 
-                failed_revenue = await self.session.scalar(
+                total_failed_revenue = await self.session.scalar(
                     select(func.coalesce(func.sum(Payment.amount_minor), 0)).where(
                         Payment.merchant_id == self.merchant_id,
-                        Payment.status == PaymentStatus.FAILED
+                        Payment.status.in_([PaymentStatus.FAILED, PaymentStatus.RECOVERED])
                     )
                 ) or 0
                 recovered_revenue = await self.session.scalar(
@@ -689,17 +705,17 @@ class RecoveryCaseService:
                         Payment.status == PaymentStatus.RECOVERED
                     )
                 ) or 0
-                recoverable_revenue = failed_revenue + recovered_revenue
-                recovery_rate = (recovered_revenue / recoverable_revenue) if recoverable_revenue > 0 else 0.0
-
-                prevented_fraud = await self.session.scalar(
-                    select(func.coalesce(func.sum(Payment.amount_minor), 0)).where(
+                denied_revenue = await self.session.scalar(
+                    select(func.coalesce(func.sum(Payment.amount_minor), 0))
+                    .join(RecoveryCase, Payment.id == RecoveryCase.payment_id)
+                    .where(
                         Payment.merchant_id == self.merchant_id,
-                        Payment.status == PaymentStatus.FAILED,
-                        RecoveryCase.payment_id == Payment.id,
                         RecoveryCase.status == RecoveryCaseStatus.DENIED
                     )
                 ) or 0
+                recoverable_revenue = max(recovered_revenue, total_failed_revenue - denied_revenue)
+                recovery_rate = (recovered_cases / total_cases) if total_cases > 0 else 0.0
+                prevented_fraud = denied_revenue
 
                 # Sample breakdown from real payments
                 payments_stmt = select(Payment).where(Payment.merchant_id == self.merchant_id).limit(1000)
@@ -768,7 +784,7 @@ class RecoveryCaseService:
                     ))
 
                 return AnalyticsPerformanceResponse(
-                    total_failed_revenue_minor=failed_revenue,
+                    total_failed_revenue_minor=total_failed_revenue,
                     recoverable_revenue_minor=recoverable_revenue,
                     recovered_revenue_minor=recovered_revenue,
                     recovery_rate=round(recovery_rate, 4),
@@ -802,8 +818,21 @@ class RecoveryCaseService:
                     trend_progression=[]
                 )
 
+        # Fallback for demo merchant when DB is offline or empty
+        all_cases = get_all_demo_cases()
+        total_cases = len(all_cases)
+        total_failed_revenue = sum(c["amount_minor"] for c in all_cases)
+        recovered_cases = sum(1 for c in all_cases if c["status"] == RecoveryCaseStatus.RECOVERED)
+        recovered_revenue = sum(c["amount_minor"] for c in all_cases if c["status"] == RecoveryCaseStatus.RECOVERED)
+        denied_revenue = sum(c["amount_minor"] for c in all_cases if c["status"] == RecoveryCaseStatus.DENIED)
+        recoverable_revenue = max(recovered_revenue, total_failed_revenue - denied_revenue)
+        recovery_rate = (recovered_cases / total_cases) if total_cases > 0 else 0.0
+        pending_cases = sum(1 for c in all_cases if c["status"] in (RecoveryCaseStatus.OPEN, RecoveryCaseStatus.PENDING_APPROVAL))
+        escalations = sum(1 for c in all_cases if c["status"] == RecoveryCaseStatus.PENDING_APPROVAL)
+        prevented_fraud = denied_revenue
+
         return AnalyticsPerformanceResponse(
-            total_failed_revenue_minor=failed_revenue,
+            total_failed_revenue_minor=total_failed_revenue,
             recoverable_revenue_minor=recoverable_revenue,
             recovered_revenue_minor=recovered_revenue,
             recovery_rate=round(recovery_rate, 4),
@@ -814,9 +843,9 @@ class RecoveryCaseService:
             escalations=escalations,
             avg_latency_hours=4.2,
             benchmark_baseline_rate=0.142,
-            reason_breakdowns=reason_breakdowns,
-            action_breakdowns=action_breakdowns,
-            trend_progression=trend_progression
+            reason_breakdowns=[],
+            action_breakdowns=[],
+            trend_progression=[]
         )
 
     async def get_causal_lift_analytics(self) -> CausalLiftResponse:
@@ -847,15 +876,17 @@ class RecoveryCaseService:
             control_rate = round(control_rec / control_count, 4) if control_count > 0 else 0.0
 
             treatment_recovered_rev = sum(r[2].amount_minor for r in treatment_cases if r[1].status == RecoveryCaseStatus.RECOVERED or r[2].status in (PaymentStatus.CAPTURED, PaymentStatus.RECOVERED))
-            incremental_rate = max(0.0, round(treatment_rate - control_rate, 4))
+            incremental_rate = round(treatment_rate - control_rate, 4)
             
             incremental_rev = int(treatment_recovered_rev * (incremental_rate / treatment_rate)) if treatment_rate > 0 else 0
-            sufficient = control_count >= 30
+            sufficient = control_count >= 100
+            inc_pct = round(incremental_rate * 100, 2)
+            sign = "+" if incremental_rate > 0 else ""
 
             msg = (
-                f"Statistical sample active. Measured {round(incremental_rate * 100, 2)}% incremental lift above control holdout."
+                f"Statistical sample active. Measured {sign}{inc_pct}% incremental lift above control holdout."
                 if sufficient
-                else f"Holdout sample accumulating ({control_count}/30 cases). Initial lift: {round(incremental_rate * 100, 2)}%."
+                else f"Holdout sample accumulating ({control_count}/100 cases). Preliminary lift: {sign}{inc_pct}% (inconclusive)."
             )
 
             return CausalLiftResponse(
@@ -876,12 +907,15 @@ class RecoveryCaseService:
             perf = await self.get_analytics_performance()
             t_count = perf.total_cases
             t_rec = perf.recovered_cases
-            t_rate = perf.recovery_rate
+            t_rate = round(t_rec / t_count, 4) if t_count > 0 else 0.0
             c_count = max(5, int(t_count * 0.05))
             c_rate = round(perf.benchmark_baseline_rate, 4)
             c_rec = int(c_count * c_rate)
-            inc_rate = max(0.0, round(t_rate - c_rate, 4))
+            inc_rate = round(t_rate - c_rate, 4)
             inc_rev = int(perf.recovered_revenue_minor * (inc_rate / t_rate)) if t_rate > 0 else 0
+            sufficient = c_count >= 100
+            inc_pct = round(inc_rate * 100, 1)
+            sign = "+" if inc_rate > 0 else ""
 
             return CausalLiftResponse(
                 treatment_cases_count=t_count,
@@ -893,6 +927,10 @@ class RecoveryCaseService:
                 incremental_recovery_rate=inc_rate,
                 incremental_recovered_revenue_minor=inc_rev,
                 current_sample_size=c_count,
-                sample_size_sufficient=c_count >= 30,
-                message=f"Holdout control cohort established. {round(inc_rate * 100, 1)}% incremental recovery rate proven over unassisted baseline."
+                sample_size_sufficient=sufficient,
+                message=(
+                    f"Holdout control cohort established. {sign}{inc_pct}% incremental recovery rate proven over unassisted baseline."
+                    if sufficient
+                    else f"Holdout sample accumulating ({c_count}/100 cases). Preliminary lift: {sign}{inc_pct}% (inconclusive)."
+                )
             )

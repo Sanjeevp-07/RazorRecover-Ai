@@ -178,7 +178,7 @@ export default function AnalyticsPage() {
             {recoveryRatePct}%
           </div>
           <div className="text-[11px] text-blue-700 font-semibold">
-            <span>+{netUplift}% over naive retry baseline ({baselineRatePct}%)</span>
+            <span>{Number(netUplift) > 0 ? "+" : ""}{netUplift}% over naive retry baseline ({baselineRatePct}%)</span>
           </div>
         </div>
 
@@ -225,20 +225,31 @@ export default function AnalyticsPage() {
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <span>Causal Lift Measurement (Holdout Experiment)</span>
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
-                  §29 Compliant
-                </span>
+                {liftData?.sample_size_sufficient ? (
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                    §29 Statistically Significant
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                    Sample Accumulating (Inconclusive)
+                  </span>
+                )}
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Scientifically proving true incremental recovery against randomized holdout control cohort
+                {liftData?.sample_size_sufficient
+                  ? "Scientifically proving true incremental recovery against randomized holdout control cohort"
+                  : "Holdout sample accumulating — preliminary observation until sample size threshold is satisfied"}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
               <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Net Incremental Lift</div>
-              <div className="text-xl font-extrabold text-emerald-600">
-                +{((liftData?.incremental_recovery_rate || 0) * 100).toFixed(1)}%
+              <div className={`text-xl font-extrabold ${
+                (liftData?.incremental_recovery_rate || 0) >= 0 ? "text-emerald-600" : "text-amber-600"
+              }`}>
+                {(liftData?.incremental_recovery_rate || 0) > 0 ? "+" : ""}
+                {((liftData?.incremental_recovery_rate || 0) * 100).toFixed(1)}%
               </div>
             </div>
           </div>
